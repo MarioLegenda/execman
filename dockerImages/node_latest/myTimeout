@@ -1,0 +1,15 @@
+# First argument: PID
+# Second argument: Timeout
+my_timeout() {
+    # Get process start time (Field 22) to check for PID recycling
+    start_time="$(cut -d ' ' -f 22 /proc/$1/stat)"
+
+    sleep "$2"
+
+    # Make sure that the PID was not reused by another process
+    # that started at a later time
+    if [ "$(cut -d ' ' -f 22 /proc/$1/stat)" = "$start_time" ]; then
+        # Kill process with SIGTERM
+        kill -15 "$1"
+    fi
+}

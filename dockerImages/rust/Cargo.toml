@@ -1,0 +1,8 @@
+[package]
+name = "All executions"
+version = "0.0.1"
+authors = [ "No name" ]
+
+[[bin]]
+name = "main"
+path = "src/main.rs"

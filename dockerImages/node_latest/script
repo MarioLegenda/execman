@@ -1,0 +1,8 @@
+counter=0
+
+echo "Starting sleep"
+
+while sleep 1; do
+    : $((counter+=1)) # Increment counter
+    echo "Slept $counter time(s)"
+done
