@@ -14,9 +14,8 @@ func main() {
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	defer emulator.Close()
 
 	res := emulator.RunJob(string(types.Ruby.Name), `puts "Hello world"`)
 	fmt.Println(res)
-
-	emulator.Close()
 }
