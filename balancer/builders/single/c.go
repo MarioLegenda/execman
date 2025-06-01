@@ -1,7 +1,6 @@
 package single
 
 import (
-	"emulator/pkg/appErrors"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -29,13 +28,13 @@ func InitCParams(ext string, text string, stateDir string) CSingleFileBuildParam
 	}
 }
 
-func CSingleFileBuild(params CSingleFileBuildParams) (CSingleFileBuildResult, *appErrors.Error) {
+func CSingleFileBuild(params CSingleFileBuildParams) (CSingleFileBuildResult, error) {
 	dirName := uuid.New().String()
 	tempExecutionDir := fmt.Sprintf("%s/%s", params.StateDir, dirName)
 	fileName := fmt.Sprintf("%s.%s", dirName, params.Extension)
 
 	if err := os.MkdirAll(tempExecutionDir, os.ModePerm); err != nil {
-		return CSingleFileBuildResult{}, appErrors.New(appErrors.ApplicationError, appErrors.FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
+		return CSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
 	}
 
 	if err := writeContent(fileName, tempExecutionDir, params.Text); err != nil {

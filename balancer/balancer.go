@@ -1,9 +1,7 @@
 package balancer
 
 import (
-	"emulator/pkg/appErrors"
-	runners2 "emulator/pkg/execution/balancer/runners"
-	"emulator/pkg/repository"
+	"github.com/MarioLegenda/execman/balancer/runners"
 	"sync"
 )
 
@@ -23,12 +21,9 @@ type Job struct {
 	EmulatorExtension string
 	EmulatorText      string
 
-	CodeProject   *repository.CodeProject
-	Contents      []*repository.FileContent
-	ExecutingFile *repository.File
-	PackageName   string
+	PackageName string
 
-	Output chan runners2.Result
+	Output chan runners.Result
 }
 
 type worker struct {
@@ -73,16 +68,16 @@ func (b *balancer) StartWorkers() {
 
 			for job := range worker.input {
 				if b.closing {
-					job.Output <- runners2.Result{
+					job.Output <- runners.Result{
 						Result:  "",
 						Success: false,
-						Error:   appErrors.New(appErrors.ApplicationError, appErrors.ShutdownError, "Worker is shutting down!"),
+						Error:   runners.WorkerShutdownError,
 					}
 
 					continue
 				}
 
-				res := runners2.Run(runners2.Params{
+				res := runners.Run(runners.Params{
 					ExecutionDir: job.ExecutionDir,
 
 					BuilderType:       job.BuilderType,
@@ -92,10 +87,7 @@ func (b *balancer) StartWorkers() {
 					EmulatorExtension: job.EmulatorExtension,
 					EmulatorText:      job.EmulatorText,
 
-					CodeProject:   job.CodeProject,
-					ExecutingFile: job.ExecutingFile,
-					Contents:      job.Contents,
-					PackageName:   job.PackageName,
+					PackageName: job.PackageName,
 				})
 
 				if res.Error != nil {
@@ -103,7 +95,7 @@ func (b *balancer) StartWorkers() {
 					b.controller[worker.index] = b.controller[worker.index] - 1
 					b.lock.Unlock()
 
-					job.Output <- runners2.Result{
+					job.Output <- runners.Result{
 						Result:  "",
 						Success: false,
 						Error:   res.Error,

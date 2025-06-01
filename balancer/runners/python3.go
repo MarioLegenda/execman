@@ -2,7 +2,6 @@ package runners
 
 import (
 	"context"
-	"emulator/pkg/appErrors"
 	"fmt"
 	"io"
 	"os/exec"
@@ -27,7 +26,7 @@ func python3Runner(params PythonExecParams) Result {
 		errPipe, err := cmd.StderrPipe()
 
 		if err != nil {
-			runResult.Error = appErrors.New(appErrors.ApplicationError, appErrors.ExecutionStartError, "Execution failed!")
+			runResult.Error = ExecutionFailed
 
 			tc <- "error"
 
@@ -37,7 +36,7 @@ func python3Runner(params PythonExecParams) Result {
 		outPipe, err := cmd.StdoutPipe()
 
 		if err != nil {
-			runResult.Error = appErrors.New(appErrors.ApplicationError, appErrors.ExecutionStartError, "Execution failed!")
+			runResult.Error = ExecutionFailed
 
 			tc <- "error"
 
@@ -56,7 +55,7 @@ func python3Runner(params PythonExecParams) Result {
 			waitErr := cmd.Wait()
 
 			if waitErr != nil {
-				runResult.Error = appErrors.New(appErrors.ApplicationError, appErrors.ExecutionStartError, "Execution failed!")
+				runResult.Error = ExecutionFailed
 
 				tc <- "error"
 
@@ -65,7 +64,7 @@ func python3Runner(params PythonExecParams) Result {
 		}
 
 		if startErr != nil {
-			runResult.Error = appErrors.New(appErrors.ApplicationError, appErrors.ExecutionStartError, "Execution failed!")
+			runResult.Error = ExecutionFailed
 
 			tc <- "error"
 
@@ -107,7 +106,7 @@ func python3Runner(params PythonExecParams) Result {
 		return Result{
 			Result:  "",
 			Success: false,
-			Error:   appErrors.New(appErrors.ApplicationError, appErrors.TimeoutError, "Code execution timeout!"),
+			Error:   CodeExecutionTimeout,
 		}
 	}
 

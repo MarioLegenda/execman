@@ -1,14 +1,11 @@
 package execman
 
 import (
-	"emulator/pkg/projectExecution"
-	"emulator/pkg/singleFileExecution"
-	_var "emulator/var"
 	"errors"
 	"fmt"
-	"github.com/MarioLegenda/ellie/types"
+	"github.com/MarioLegenda/execman/types"
+	"log"
 	"os"
-	"sync"
 	"time"
 )
 
@@ -100,6 +97,7 @@ type Emulator interface {
 
 type emulator struct {
 	executionDir string
+	execution    *execution
 }
 
 type Options struct {
@@ -159,110 +157,22 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 	return types.Language{}, errors.New(fmt.Sprintf("Cannot find language %s", name))
 }
 
-func initRequiredDirectories(output bool, executionDir string) {
-	projectsDir := executionDir
-	directoriesExist := true
-	if _, err := os.Stat(projectsDir); os.IsNotExist(err) {
-		directoriesExist = false
-
-		if output {
-			fmt.Println("")
-			fmt.Println("Creating required directories...")
-		}
-		fsErr := os.Mkdir(projectsDir, os.ModePerm)
-
-		if fsErr != nil {
-			errorHandler.TerminateWithMessage(fmt.Sprintf("Cannot create %s directory: %s", projectsDir, fsErr.Error()))
-		}
-	}
-
-	if !directoriesExist {
-		rest := []string{
-			projectsDir,
-		}
-
-		for _, dir := range rest {
-			if _, err := os.Stat(dir); os.IsNotExist(err) {
-				fsErr := os.Mkdir(dir, os.ModePerm)
-
-				if fsErr != nil {
-					errorHandler.TerminateWithMessage(fmt.Sprintf("Cannot create %s directory: %s", dir, fsErr.Error()))
-				}
-			}
-		}
-	} else {
-		if output {
-			fmt.Println("")
-			fmt.Println("Required directories already created! Skipping...")
-			fmt.Println("")
-		}
-	}
-
-	if !directoriesExist {
-		if output {
-			fmt.Println("Required directories created!")
-			fmt.Println("")
-		}
-	}
-}
-
-func initExecutioners(options Options) {
-	err := execution2.Init(options.ExecutionDirectory, _var.PROJECT_EXECUTION, []execution2.ContainerBlueprint{
-		createBlueprint("NODE_LTS", string(types.NodeLts.Tag), options.NodeLts.Workers, options.NodeLts.Containers),
-		createBlueprint("JULIA", string(types.Julia.Tag), options.Julia.Workers, options.Julia.Containers),
-		createBlueprint("NODE_ESM", string(types.NodeEsm.Tag), options.NodeEsm.Workers, options.NodeEsm.Containers),
-		createBlueprint("RUBY", string(types.Ruby.Tag), options.Ruby.Workers, options.Ruby.Containers),
-		createBlueprint("RUST", string(types.Rust.Tag), options.Rust.Workers, options.Rust.Containers),
-		createBlueprint("CPLUS", string(types.CPlus.Tag), options.CPlus.Workers, options.CPlus.Containers),
-		createBlueprint("HASKELL", string(types.Haskell.Tag), options.Haskell.Workers, options.Haskell.Containers),
-		createBlueprint("C", string(types.CLang.Tag), options.CLang.Workers, options.CLang.Containers),
-		createBlueprint("PERL", string(types.PerlLts.Tag), options.Perl.Workers, options.Perl.Containers),
-		createBlueprint("C_SHARP", string(types.CSharpMono.Tag), options.CSharp.Workers, options.CSharp.Containers),
-		createBlueprint("PYTHON3", string(types.Python3.Tag), options.Python3.Workers, options.Python3.Containers),
-		createBlueprint("LUA", string(types.Lua.Tag), options.Lua.Workers, options.Lua.Containers),
-		createBlueprint("PYTHON2", string(types.Python2.Tag), options.Python2.Workers, options.Python2.Containers),
-		createBlueprint("PHP74", string(types.Php74.Tag), options.Php74.Workers, options.Php74.Containers),
-		createBlueprint("GO", string(types.GoLang.Tag), options.GoLang.Workers, options.GoLang.Containers),
-	})
-
-	if err != nil {
-		fmt.Println(fmt.Sprintf("Cannot boot: %s", err.Error()))
-
-		if !execution2.Service(_var.PROJECT_EXECUTION).Closed() {
-			execution2.Service(_var.PROJECT_EXECUTION).Close()
-		}
-
-		time.Sleep(5 * time.Second)
-
-		if os.Getenv("APP_ENV") == "prod" {
-			execution2.FinalCleanup(true)
-		}
-
-		errorHandler.TerminateWithMessage("Cannot boot executioner.")
-	}
-}
-
-func createBlueprint(name, tag string, workers, containers int) execution2.ContainerBlueprint {
-	return execution2.ContainerBlueprint{
-		WorkerNum:    workers,
-		ContainerNum: containers,
-		Tag:          tag,
-	}
-}
-
+/*
+*
+Initializes new execman instance
+*/
 func New(options Options) Emulator {
 	initRequiredDirectories(true, options.ExecutionDirectory)
-	singleFileExecution.InitService()
-	projectExecution.InitService()
 
-	initExecutioners(options)
+	executioner := initExecutioners(options)
 
 	return emulator{
 		executionDir: options.ExecutionDirectory,
+		execution:    executioner,
 	}
 }
 
-func (e emulator) RunJob(language, content string) Result {
+func (em emulator) RunJob(language, content string) Result {
 	lang, err := selectProgrammingLanguage(language)
 	if err != nil {
 		return Result{
@@ -272,8 +182,8 @@ func (e emulator) RunJob(language, content string) Result {
 		}
 	}
 
-	res := execution2.Service(_var.PROJECT_EXECUTION).RunJob(execution2.Job{
-		ExecutionDir:      e.executionDir,
+	res := em.execution.RunJob(Job{
+		ExecutionDir:      em.executionDir,
 		BuilderType:       "single_file",
 		ExecutionType:     "single_file",
 		EmulatorName:      string(lang.Name),
@@ -295,21 +205,100 @@ func (e emulator) RunJob(language, content string) Result {
 	return realResult
 }
 
-func (e emulator) Close() {
-	wg := sync.WaitGroup{}
-	for _, e := range []string{_var.PROJECT_EXECUTION} {
-		wg.Add(1)
-
-		go func(name string, wg *sync.WaitGroup) {
-			if !execution2.Service(name).Closed() {
-				execution2.Service(name).Close()
-			}
-			wg.Done()
-		}(e, &wg)
+func (em emulator) Close() {
+	if !em.execution.Closed() {
+		em.execution.Close()
 	}
 
-	wg.Wait()
-
 	time.Sleep(5 * time.Second)
-	execution2.FinalCleanup(true)
+	FinalCleanup(true)
+}
+
+func initRequiredDirectories(output bool, executionDir string) {
+	projectsDir := executionDir
+	directoriesExist := true
+	if _, err := os.Stat(projectsDir); os.IsNotExist(err) {
+		directoriesExist = false
+
+		if output {
+			fmt.Println("")
+			fmt.Println("Creating required directories...")
+		}
+		fsErr := os.Mkdir(projectsDir, os.ModePerm)
+
+		if fsErr != nil {
+			log.Fatalln(fmt.Sprintf("Cannot create %s directory: %s", projectsDir, fsErr.Error()))
+		}
+	}
+
+	if !directoriesExist {
+		rest := []string{
+			projectsDir,
+		}
+
+		for _, dir := range rest {
+			if _, err := os.Stat(dir); os.IsNotExist(err) {
+				fsErr := os.Mkdir(dir, os.ModePerm)
+
+				if fsErr != nil {
+					log.Fatalln(fmt.Sprintf("Cannot create %s directory: %s", dir, fsErr.Error()))
+				}
+			}
+		}
+	} else {
+		if output {
+			fmt.Println("")
+			fmt.Println("Required directories already created! Skipping...")
+			fmt.Println("")
+		}
+	}
+
+	if !directoriesExist {
+		if output {
+			fmt.Println("Required directories created!")
+			fmt.Println("")
+		}
+	}
+}
+
+func initExecutioners(options Options) *execution {
+	exec, err := Init(options.ExecutionDirectory, []ContainerBlueprint{
+		createBlueprint("NODE_LTS", string(types.NodeLts.Tag), options.NodeLts.Workers, options.NodeLts.Containers),
+		createBlueprint("JULIA", string(types.Julia.Tag), options.Julia.Workers, options.Julia.Containers),
+		createBlueprint("NODE_ESM", string(types.NodeEsm.Tag), options.NodeEsm.Workers, options.NodeEsm.Containers),
+		createBlueprint("RUBY", string(types.Ruby.Tag), options.Ruby.Workers, options.Ruby.Containers),
+		createBlueprint("RUST", string(types.Rust.Tag), options.Rust.Workers, options.Rust.Containers),
+		createBlueprint("CPLUS", string(types.CPlus.Tag), options.CPlus.Workers, options.CPlus.Containers),
+		createBlueprint("HASKELL", string(types.Haskell.Tag), options.Haskell.Workers, options.Haskell.Containers),
+		createBlueprint("C", string(types.CLang.Tag), options.CLang.Workers, options.CLang.Containers),
+		createBlueprint("PERL", string(types.PerlLts.Tag), options.Perl.Workers, options.Perl.Containers),
+		createBlueprint("C_SHARP", string(types.CSharpMono.Tag), options.CSharp.Workers, options.CSharp.Containers),
+		createBlueprint("PYTHON3", string(types.Python3.Tag), options.Python3.Workers, options.Python3.Containers),
+		createBlueprint("LUA", string(types.Lua.Tag), options.Lua.Workers, options.Lua.Containers),
+		createBlueprint("PYTHON2", string(types.Python2.Tag), options.Python2.Workers, options.Python2.Containers),
+		createBlueprint("PHP74", string(types.Php74.Tag), options.Php74.Workers, options.Php74.Containers),
+		createBlueprint("GO", string(types.GoLang.Tag), options.GoLang.Workers, options.GoLang.Containers),
+	})
+
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Cannot boot: %s", err.Error()))
+
+		if !exec.Closed() {
+			exec.Close()
+		}
+
+		time.Sleep(5 * time.Second)
+
+		log.Fatalln("Cannot boot executioners")
+	}
+
+	return exec
+}
+
+func createBlueprint(name, tag string, workers, containers int) ContainerBlueprint {
+	return ContainerBlueprint{
+		WorkerNum:    workers,
+		ContainerNum: containers,
+		Tag:          tag,
+	}
 }

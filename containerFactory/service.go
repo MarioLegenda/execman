@@ -3,7 +3,6 @@ package containerFactory
 import (
 	"bytes"
 	"context"
-	"emulator/pkg/appErrors"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -12,18 +11,14 @@ import (
 	"time"
 )
 
-var services map[string]Container
-
 type Container interface {
-	CreateContainers(string, string, int) []*appErrors.Error
+	CreateContainers(string, string, int) []error
 	Close()
 	Containers(tagName string) []container
 }
 
-type service struct {
-	containers map[string][]container
-	lock       sync.Mutex
-}
+var containers = make(map[string][]container)
+var lock sync.Mutex
 
 type message struct {
 	messageType string
@@ -39,32 +34,18 @@ type container struct {
 	Name string
 }
 
-func Init(name string) {
-	if services == nil {
-		services = make(map[string]Container)
-	}
-
-	s := &service{containers: make(map[string][]container)}
-
-	services[name] = s
+func Containers(tagName string) []container {
+	return containers[tagName]
 }
 
-func Service(name string) Container {
-	return services[name]
-}
-
-func (d *service) Containers(tagName string) []container {
-	return d.containers[tagName]
-}
-
-func (d *service) CreateContainers(executionDir, tag string, containerNum int) []*appErrors.Error {
+func CreateContainers(executionDir, tag string, containerNum int) []error {
 	blocks := makeBlocks(containerNum, 5)
 
-	errs := make([]*appErrors.Error, 0)
+	errs := make([]error, 0)
 	for _, block := range blocks {
 		wg := sync.WaitGroup{}
 
-		for _ = range block {
+		for range block {
 			wg.Add(1)
 			go func(wg *sync.WaitGroup) {
 				name := uuid.New().String()
@@ -73,7 +54,7 @@ func (d *service) CreateContainers(executionDir, tag string, containerNum int) [
 				fsErr := os.Mkdir(containerDir, os.ModePerm)
 
 				if fsErr != nil {
-					errs = append(errs, appErrors.New(appErrors.ApplicationError, appErrors.ApplicationRuntimeError, fmt.Sprintf("Could not start container: %s", fsErr.Error())))
+					errs = append(errs, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", fsErr.Error())))
 
 					wg.Done()
 
@@ -93,7 +74,7 @@ func (d *service) CreateContainers(executionDir, tag string, containerNum int) [
 				select {
 				case <-time.After(1 * time.Second):
 					if !isContainerRunning(name) {
-						errs = append(errs, appErrors.New(appErrors.ApplicationError, appErrors.ApplicationRuntimeError, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
+						errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
 
 						wg.Done()
 
@@ -101,13 +82,13 @@ func (d *service) CreateContainers(executionDir, tag string, containerNum int) [
 					}
 
 					close(newContainer.output)
-					d.lock.Lock()
-					if _, ok := d.containers[tag]; !ok {
-						d.containers[tag] = make([]container, 0)
+					lock.Lock()
+					if _, ok := containers[tag]; !ok {
+						containers[tag] = make([]container, 0)
 					}
 
-					d.containers[tag] = append(d.containers[tag], newContainer)
-					d.lock.Unlock()
+					containers[tag] = append(containers[tag], newContainer)
+					lock.Unlock()
 
 					wg.Done()
 				case msg := <-newContainer.output:
@@ -115,7 +96,7 @@ func (d *service) CreateContainers(executionDir, tag string, containerNum int) [
 						err := msg.data.(error)
 						close(newContainer.output)
 
-						errs = append(errs, appErrors.New(appErrors.ApplicationError, appErrors.ApplicationRuntimeError, fmt.Sprintf("Could not start container; Name: %s, Tag: %s: %s", newContainer.Name, newContainer.Tag, err.Error())))
+						errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Could not start container; Name: %s, Tag: %s: %s", newContainer.Name, newContainer.Tag, err.Error())))
 
 						wg.Done()
 					}
@@ -131,8 +112,8 @@ func (d *service) CreateContainers(executionDir, tag string, containerNum int) [
 	return errs
 }
 
-func (d service) Close() {
-	contArr := containersToSlice(d.containers)
+func Close() {
+	contArr := containersToSlice(containers)
 	blocks := makeBlocks(len(contArr), 10)
 
 	for _, block := range blocks {
@@ -164,16 +145,13 @@ func (d service) Close() {
 
 				err := os.RemoveAll(c.dir)
 
-				if err == nil {
-					// TODO: // send slack error and log
-				}
-
 				if err != nil {
 					cmd := exec.Command("rm", []string{"-rf", c.dir}...)
 
 					err := cmd.Run()
 
 					if err != nil {
+						fmt.Printf("Filesystem error: Cannot remove directory %s: %v. You will have to remove in manually\n", c.dir, err)
 						wg.Done()
 						// TODO: send slack error and log
 						return

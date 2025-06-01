@@ -2,7 +2,6 @@ package runners
 
 import (
 	"context"
-	"emulator/pkg/appErrors"
 	"fmt"
 	"io"
 	"os/exec"
@@ -31,7 +30,7 @@ func goRunner(params GoExecParams) Result {
 		errPipe, err := cmd.StderrPipe()
 
 		if err != nil {
-			runResult.Error = appErrors.New(appErrors.ApplicationError, appErrors.ExecutionStartError, "Execution failed!")
+			runResult.Error = ExecutionFailed
 
 			tc <- "error"
 
@@ -41,7 +40,7 @@ func goRunner(params GoExecParams) Result {
 		outPipe, err := cmd.StdoutPipe()
 
 		if err != nil {
-			runResult.Error = appErrors.New(appErrors.ApplicationError, appErrors.ExecutionStartError, "Execution failed!")
+			runResult.Error = ExecutionFailed
 
 			tc <- "error"
 
@@ -60,7 +59,7 @@ func goRunner(params GoExecParams) Result {
 			waitErr := cmd.Wait()
 
 			if waitErr != nil {
-				runResult.Error = appErrors.New(appErrors.ApplicationError, appErrors.ExecutionStartError, "Execution failed!")
+				runResult.Error = ExecutionFailed
 
 				tc <- "error"
 
@@ -69,7 +68,7 @@ func goRunner(params GoExecParams) Result {
 		}
 
 		if startErr != nil {
-			runResult.Error = appErrors.New(appErrors.ApplicationError, appErrors.ExecutionStartError, "Execution failed!")
+			runResult.Error = ExecutionFailed
 
 			tc <- "error"
 
@@ -111,7 +110,7 @@ func goRunner(params GoExecParams) Result {
 		return Result{
 			Result:  "",
 			Success: false,
-			Error:   appErrors.New(appErrors.ApplicationError, appErrors.TimeoutError, "Code execution timeout!"),
+			Error:   CodeExecutionTimeout,
 		}
 	}
 

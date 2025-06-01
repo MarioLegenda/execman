@@ -1,7 +1,6 @@
 package single
 
 import (
-	"emulator/pkg/appErrors"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -27,13 +26,13 @@ func InitPhpParams(ext string, text string, stateDir string) PhpSingleFileBuildP
 	}
 }
 
-func PhpSingleFileBuild(params PhpSingleFileBuildParams) (PhpSingleFileBuildResult, *appErrors.Error) {
+func PhpSingleFileBuild(params PhpSingleFileBuildParams) (PhpSingleFileBuildResult, error) {
 	dirName := uuid.New().String()
 	tempExecutionDir := fmt.Sprintf("%s/%s", params.StateDir, dirName)
 	fileName := fmt.Sprintf("%s.%s", dirName, params.Extension)
 
 	if err := os.MkdirAll(tempExecutionDir, os.ModePerm); err != nil {
-		return PhpSingleFileBuildResult{}, appErrors.New(appErrors.ApplicationError, appErrors.FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
+		return PhpSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
 	}
 
 	if err := writeContent(fileName, tempExecutionDir, params.Text); err != nil {

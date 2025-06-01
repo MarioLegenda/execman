@@ -1,7 +1,6 @@
 package single
 
 import (
-	"emulator/pkg/appErrors"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -27,13 +26,13 @@ func InitRustParams(ext string, text string, stateDir string) RustSingleFileBuil
 	}
 }
 
-func RustSingleFileBuild(params RustSingleFileBuildParams) (RustSingleFileBuildResult, *appErrors.Error) {
+func RustSingleFileBuild(params RustSingleFileBuildParams) (RustSingleFileBuildResult, error) {
 	dirName := uuid.New().String()
 	tempExecutionDir := fmt.Sprintf("%s/%s", params.StateDir, dirName)
 	fileName := "main.rs"
 
 	if err := os.MkdirAll(tempExecutionDir, os.ModePerm); err != nil {
-		return RustSingleFileBuildResult{}, appErrors.New(appErrors.ApplicationError, appErrors.FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
+		return RustSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
 	}
 
 	if err := writeContent(fileName, tempExecutionDir, params.Text); err != nil {

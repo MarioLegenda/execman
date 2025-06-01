@@ -1,7 +1,9 @@
 package main
 
 import (
-	"github.com/MarioLegenda/ellie"
+	"fmt"
+	"github.com/MarioLegenda/execman"
+	"github.com/MarioLegenda/execman/types"
 )
 
 func main() {
@@ -10,7 +12,11 @@ func main() {
 			Workers:    10,
 			Containers: 1,
 		},
-		ExecutionDirectory: "/home/mario/go/emulator/simulator/execution_directory",
-		LogDirectory:       "/home/mario/go/emulator/simulator/var",
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+
+	res := emulator.RunJob(string(types.Ruby.Name), `puts "Hello world"`)
+	fmt.Println(res)
+
+	emulator.Close()
 }

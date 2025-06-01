@@ -1,7 +1,6 @@
 package runners
 
 import (
-	"emulator/pkg/appErrors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -12,11 +11,11 @@ import (
 	"syscall"
 )
 
-func readFile(path string) (string, *appErrors.Error) {
+func readFile(path string) (string, error) {
 	buff, err := ioutil.ReadFile(path)
 
 	if err != nil {
-		return "", appErrors.New(appErrors.ApplicationError, appErrors.FilesystemError, err.Error())
+		return "", fmt.Errorf("%w: %v", FilesystemError, err)
 	}
 
 	return string(buff), nil

@@ -1,13 +1,9 @@
 package runners
 
-import (
-	"emulator/pkg/appErrors"
-)
-
 type Result struct {
 	Result  string
 	Success bool
-	Error   *appErrors.Error
+	Error   error
 }
 
 type name string

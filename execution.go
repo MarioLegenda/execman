@@ -1,18 +1,13 @@
 package execman
 
 import (
-	"emulator/pkg/appErrors"
-	"emulator/pkg/sdk/sdk"
 	"fmt"
-	"github.com/MarioLegenda/ellie/balancer"
-	"github.com/MarioLegenda/ellie/balancer/runners"
-	"github.com/MarioLegenda/ellie/containerFactory"
-	"os"
-	"runtime"
+	"github.com/MarioLegenda/execman/balancer"
+	"github.com/MarioLegenda/execman/balancer/runners"
+	"github.com/MarioLegenda/execman/containerFactory"
+	"github.com/MarioLegenda/execman/sdk"
 	"sync"
 )
-
-var services map[string]Execution
 
 type Job struct {
 	ExecutionDir string
@@ -47,35 +42,23 @@ type ContainerBlueprint struct {
 	Tag          string
 }
 
-func Init(executionDir, name string, blueprints []ContainerBlueprint) *appErrors.Error {
+func Init(executionDir string, blueprints []ContainerBlueprint) (*execution, error) {
 	blueprints = sdk.Filter(blueprints, func(idx int, value ContainerBlueprint) bool {
 		return value.ContainerNum != 0
 	})
 
-	if services == nil {
-		services = make(map[string]Execution)
-	}
-
-	containerFactory.Init(name)
 	s := &execution{
 		balancers:  make(map[string][]balancer.Balancer),
 		controller: make(map[string][]int32),
-		name:       name,
 	}
 
-	services[name] = s
-
-	err := s.init(executionDir, name, blueprints)
+	err := s.init(executionDir, blueprints)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
-}
-
-func Service(name string) Execution {
-	return services[name]
+	return s, nil
 }
 
 func (e *execution) Closed() bool {
@@ -83,16 +66,6 @@ func (e *execution) Closed() bool {
 }
 
 func (e *execution) RunJob(j Job) runners.Result {
-	defer func() {
-		if err := recover(); err != nil {
-			buf := make([]byte, 2048)
-			n := runtime.Stack(buf, true)
-			buf = buf[:n]
-
-			os.Exit(125)
-		}
-	}()
-
 	e.lock.Lock()
 
 	balancers := e.balancers[j.EmulatorTag]
@@ -104,7 +77,7 @@ func (e *execution) RunJob(j Job) runners.Result {
 		return runners.Result{
 			Result:  "",
 			Success: false,
-			Error:   appErrors.New(appErrors.ApplicationError, appErrors.TimeoutError, "Closing executioner"),
+			Error:   fmt.Errorf("%w", TimeoutError),
 		}
 	}
 
@@ -123,6 +96,7 @@ func (e *execution) RunJob(j Job) runners.Result {
 	e.lock.Unlock()
 
 	output := make(chan runners.Result)
+
 	b.AddJob(balancer.Job{
 		ExecutionDir:      j.ExecutionDir,
 		BuilderType:       j.BuilderType,
@@ -131,10 +105,7 @@ func (e *execution) RunJob(j Job) runners.Result {
 		EmulatorExtension: j.EmulatorExtension,
 		EmulatorText:      j.EmulatorText,
 
-		CodeProject:   j.CodeProject,
-		ExecutingFile: j.ExecutingFile,
-		Contents:      j.Contents,
-		PackageName:   j.PackageName,
+		PackageName: j.PackageName,
 
 		Output: output,
 	})
@@ -160,13 +131,15 @@ func (e *execution) Close() {
 		}
 	}
 
-	containerFactory.Service(e.name).Close()
+	containerFactory.Close()
 }
 
-func (e *execution) init(executionDir, name string, blueprints []ContainerBlueprint) *appErrors.Error {
+func (e *execution) init(executionDir string, blueprints []ContainerBlueprint) error {
 	workers := make(map[string]int)
 	for _, blueprint := range blueprints {
-		errs := containerFactory.Service(name).CreateContainers(executionDir, blueprint.Tag, blueprint.ContainerNum)
+		fmt.Println("Creating container: ", blueprint.Tag)
+
+		errs := containerFactory.CreateContainers(executionDir, blueprint.Tag, blueprint.ContainerNum)
 
 		if len(errs) != 0 {
 			e.Close()
@@ -176,14 +149,12 @@ func (e *execution) init(executionDir, name string, blueprints []ContainerBluepr
 				log += fmt.Sprintf("%s,", err.Error())
 			}
 
-			//fmt.Println(fmt.Sprintf("Cannot boot container for tag %s. The following errors have occurred: %s", blueprint.Tag, strings.Replace(log, ",", "\n", -1)))
-
-			return appErrors.New(appErrors.ServerError, appErrors.ApplicationRuntimeError, fmt.Sprintf("Cannot boot container for tag %s", blueprint.Tag))
+			return fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s", blueprint.Tag))
 		}
 
 		workers[blueprint.Tag] = blueprint.WorkerNum
 
-		containers := containerFactory.Service(name).Containers(blueprint.Tag)
+		containers := containerFactory.Containers(blueprint.Tag)
 
 		for _, c := range containers {
 			e.createBalancer(c.Name, c.Tag, blueprint.WorkerNum)
