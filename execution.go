@@ -149,7 +149,7 @@ func (e *execution) init(executionDir string, blueprints []ContainerBlueprint) e
 				log += fmt.Sprintf("%s,", err.Error())
 			}
 
-			return fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s", blueprint.Tag))
+			return fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s: %s", blueprint.Tag, log))
 		}
 
 		workers[blueprint.Tag] = blueprint.WorkerNum

@@ -126,7 +126,7 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.GoLang, nil
 	} else if name == "node_latest" {
 		return types.NodeLts, nil
-	} else if name == "node_esm" {
+	} else if name == "node_latest_esm" {
 		return types.NodeEsm, nil
 	} else if name == "ruby" {
 		return types.Ruby, nil
@@ -134,7 +134,7 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.Julia, nil
 	} else if name == "rust" {
 		return types.Rust, nil
-	} else if name == "cplus" {
+	} else if name == "c++" {
 		return types.CPlus, nil
 	} else if name == "haskell" {
 		return types.Haskell, nil
@@ -282,11 +282,8 @@ func initExecutioners(options Options) *execution {
 
 	if err != nil {
 		fmt.Println(fmt.Sprintf("Cannot boot: %s", err.Error()))
-
-		if !exec.Closed() {
-			exec.Close()
-		}
-
+		
+		// TODO: investigate why is this here?
 		time.Sleep(5 * time.Second)
 
 		log.Fatalln("Cannot boot executioners")

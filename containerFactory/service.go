@@ -26,6 +26,11 @@ type message struct {
 }
 
 type container struct {
+	/**
+	outuput channel is used only to signal if a container could
+	boot up or not and on creation time. After that, it is closed and
+	not used anymore. see CreateContainers function
+	*/
 	output chan message
 	pid    chan int
 	dir    string
@@ -114,59 +119,52 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 
 func Close() {
 	contArr := containersToSlice(containers)
-	blocks := makeBlocks(len(contArr), 10)
 
-	for _, block := range blocks {
-		wg := sync.WaitGroup{}
+	wg := sync.WaitGroup{}
+	for _, entry := range contArr {
+		wg.Add(1)
 
-		for _, b := range block {
-			wg.Add(1)
-			c := contArr[b]
+		go func(c container, wg *sync.WaitGroup) {
+			ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(20*time.Second))
+			out := make(chan int)
 
-			go func(c container, wg *sync.WaitGroup) {
-				ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(20*time.Second))
-				out := make(chan int)
+			go func(pidCh chan int, out chan int) {
+				select {
+				case <-ctx.Done():
+					out <- 0
+				case pid := <-c.pid:
+					cancel()
+					out <- pid
+				}
+			}(c.pid, out)
 
-				go func(pidCh chan int, out chan int) {
-					select {
-					case <-ctx.Done():
-						out <- 0
-					case pid := <-c.pid:
-						cancel()
-						out <- pid
-					}
-				}(c.pid, out)
+			pid := <-out
 
-				pid := <-out
+			stopDockerContainer(c.Name, pid)
 
-				stopDockerContainer(c.Name, pid)
+			close(c.pid)
 
-				close(c.pid)
+			err := os.RemoveAll(c.dir)
 
-				err := os.RemoveAll(c.dir)
+			if err != nil {
+				cmd := exec.Command("rm", []string{"-rf", c.dir}...)
+
+				err := cmd.Run()
 
 				if err != nil {
-					cmd := exec.Command("rm", []string{"-rf", c.dir}...)
-
-					err := cmd.Run()
-
-					if err != nil {
-						fmt.Printf("Filesystem error: Cannot remove directory %s: %v. You will have to remove in manually\n", c.dir, err)
-						wg.Done()
-						// TODO: send slack error and log
-						return
-					}
+					fmt.Printf("Filesystem error: Cannot remove directory %s: %v. You will have to remove in manually\n", c.dir, err)
+					wg.Done()
+					// TODO: send slack error and log
+					return
 				}
+			}
 
-				wg.Done()
-			}(c, &wg)
-		}
-
-		wg.Wait()
+			wg.Done()
+		}(entry, &wg)
 	}
 
-	cmd := exec.Command("docker", []string{"volume", "rm", "$(docker volume ls -q)"}...)
-	cmd.Run()
+	wg.Wait()
+	containers = make(map[string][]container)
 }
 
 func createContainer(c container, executionDir string) {
@@ -180,11 +178,10 @@ func createContainer(c container, executionDir string) {
 			fmt.Sprintf("%s:/app:rw", fmt.Sprintf("%s/%s", executionDir, c.Name)),
 			"--name",
 			c.Name,
-			"--init",
 			c.Tag,
 			"/bin/sh",
 		}
-
+		
 		cmd := exec.Command("docker", args...)
 		var outb, errb bytes.Buffer
 
