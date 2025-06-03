@@ -78,6 +78,17 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 
 				select {
 				case <-time.After(1 * time.Second):
+					// we update the containers array right away
+					// so if something goes wrong, the close mechanism
+					// can clenaup the system from the bad container
+					lock.Lock()
+					if _, ok := containers[tag]; !ok {
+						containers[tag] = make([]container, 0)
+					}
+
+					containers[tag] = append(containers[tag], newContainer)
+					lock.Unlock()
+
 					if !isContainerRunning(name) {
 						errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
 
@@ -177,11 +188,12 @@ func createContainer(c container, executionDir string) {
 			"-v",
 			fmt.Sprintf("%s:/app:rw", fmt.Sprintf("%s/%s", executionDir, c.Name)),
 			"--name",
+			"--init",
 			c.Name,
 			c.Tag,
 			"/bin/sh",
 		}
-		
+
 		cmd := exec.Command("docker", args...)
 		var outb, errb bytes.Buffer
 
