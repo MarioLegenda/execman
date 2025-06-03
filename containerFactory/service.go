@@ -25,14 +25,8 @@ type message struct {
 }
 
 type container struct {
-	/**
-	outuput channel is used only to signal if a container could
-	boot up or not and on creation time. After that, it is closed and
-	not used anymore. see CreateContainers function
-	*/
-	output chan message
-	pid    int
-	dir    string
+	pid int
+	dir string
 
 	Tag  string
 	Name string
@@ -52,6 +46,8 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 		for range block {
 			wg.Add(1)
 			go func(wg *sync.WaitGroup) {
+				defer wg.Done()
+
 				name := uuid.New().String()
 
 				containerDir := fmt.Sprintf("%s/%s", executionDir, name)
@@ -59,8 +55,6 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 
 				if fsErr != nil {
 					errs = append(errs, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", fsErr.Error())))
-
-					wg.Done()
 
 					return
 				}
@@ -92,8 +86,6 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 				if err != nil {
 					errs = append(errs, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", err.Error())))
 
-					wg.Done()
-
 					return
 				}
 
@@ -102,12 +94,8 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 					if !isContainerRunning(name) {
 						errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
 
-						wg.Done()
-
 						return
 					}
-
-					wg.Done()
 				}
 			}(&wg)
 		}
@@ -121,7 +109,9 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 }
 
 func Close() {
+	lock.Lock()
 	contArr := containersToSlice(containers)
+	lock.Unlock()
 
 	wg := sync.WaitGroup{}
 	for _, entry := range contArr {
@@ -162,7 +152,6 @@ func createContainer(containerName, containerTag, executionDir string) (int, err
 		"-v",
 		fmt.Sprintf("%s:/app:rw", fmt.Sprintf("%s/%s", executionDir, containerName)),
 		"--name",
-		"--init",
 		containerName,
 		containerTag,
 		"/bin/sh",
