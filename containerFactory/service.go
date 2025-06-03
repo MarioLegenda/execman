@@ -2,7 +2,6 @@ package containerFactory
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"os"
@@ -32,7 +31,7 @@ type container struct {
 	not used anymore. see CreateContainers function
 	*/
 	output chan message
-	pid    chan int
+	pid    int
 	dir    string
 
 	Tag  string
@@ -66,29 +65,40 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 					return
 				}
 
+				pid, err := createContainer(name, tag, executionDir)
 				newContainer := container{
-					output: make(chan message),
-					pid:    make(chan int),
-					dir:    containerDir,
-					Tag:    tag,
-					Name:   name,
+					pid:  pid,
+					dir:  containerDir,
+					Tag:  tag,
+					Name: name,
 				}
 
-				createContainer(newContainer, executionDir)
+				// we update the containers array right away
+				// so if something goes wrong, the close mechanism
+				// can clenaup the system from the bad container
+
+				// NOTE: A container might be up but in a not "running" state.
+				// That is why we need to put it into the containers array.
+				// It is also important for the cleanup since volume directories
+				// are created and need to be removed in case of any error
+				lock.Lock()
+				if _, ok := containers[tag]; !ok {
+					containers[tag] = make([]container, 0)
+				}
+
+				containers[tag] = append(containers[tag], newContainer)
+				lock.Unlock()
+
+				if err != nil {
+					errs = append(errs, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", err.Error())))
+
+					wg.Done()
+
+					return
+				}
 
 				select {
 				case <-time.After(1 * time.Second):
-					// we update the containers array right away
-					// so if something goes wrong, the close mechanism
-					// can clenaup the system from the bad container
-					lock.Lock()
-					if _, ok := containers[tag]; !ok {
-						containers[tag] = make([]container, 0)
-					}
-
-					containers[tag] = append(containers[tag], newContainer)
-					lock.Unlock()
-
 					if !isContainerRunning(name) {
 						errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
 
@@ -97,25 +107,7 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 						return
 					}
 
-					close(newContainer.output)
-					lock.Lock()
-					if _, ok := containers[tag]; !ok {
-						containers[tag] = make([]container, 0)
-					}
-
-					containers[tag] = append(containers[tag], newContainer)
-					lock.Unlock()
-
 					wg.Done()
-				case msg := <-newContainer.output:
-					if msg.messageType == "error" {
-						err := msg.data.(error)
-						close(newContainer.output)
-
-						errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Could not start container; Name: %s, Tag: %s: %s", newContainer.Name, newContainer.Tag, err.Error())))
-
-						wg.Done()
-					}
 				}
 			}(&wg)
 		}
@@ -136,24 +128,7 @@ func Close() {
 		wg.Add(1)
 
 		go func(c container, wg *sync.WaitGroup) {
-			ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(20*time.Second))
-			out := make(chan int)
-
-			go func(pidCh chan int, out chan int) {
-				select {
-				case <-ctx.Done():
-					out <- 0
-				case pid := <-c.pid:
-					cancel()
-					out <- pid
-				}
-			}(c.pid, out)
-
-			pid := <-out
-
-			stopDockerContainer(c.Name, pid)
-
-			close(c.pid)
+			stopDockerContainer(c.Name, c.pid)
 
 			err := os.RemoveAll(c.dir)
 
@@ -178,38 +153,32 @@ func Close() {
 	containers = make(map[string][]container)
 }
 
-func createContainer(c container, executionDir string) {
-	go func(c container) {
-		args := []string{
-			"run",
-			"-d",
-			"-t",
-			"--network=none",
-			"-v",
-			fmt.Sprintf("%s:/app:rw", fmt.Sprintf("%s/%s", executionDir, c.Name)),
-			"--name",
-			"--init",
-			c.Name,
-			c.Tag,
-			"/bin/sh",
-		}
+func createContainer(containerName, containerTag, executionDir string) (int, error) {
+	args := []string{
+		"run",
+		"-d",
+		"-t",
+		"--network=none",
+		"-v",
+		fmt.Sprintf("%s:/app:rw", fmt.Sprintf("%s/%s", executionDir, containerName)),
+		"--name",
+		"--init",
+		containerName,
+		containerTag,
+		"/bin/sh",
+	}
 
-		cmd := exec.Command("docker", args...)
-		var outb, errb bytes.Buffer
+	cmd := exec.Command("docker", args...)
+	var outb, errb bytes.Buffer
 
-		cmd.Stderr = &errb
-		cmd.Stdout = &outb
+	cmd.Stderr = &errb
+	cmd.Stdout = &outb
 
-		startErr := cmd.Run()
-		c.pid <- cmd.Process.Pid
+	startErr := cmd.Run()
 
-		if startErr != nil {
-			c.output <- message{
-				messageType: "error",
-				data:        startErr,
-			}
+	if startErr != nil {
+		return 0, startErr
+	}
 
-			return
-		}
-	}(c)
+	return cmd.Process.Pid, nil
 }

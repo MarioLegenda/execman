@@ -2,6 +2,7 @@ package containerFactory
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
@@ -36,6 +37,11 @@ func isContainerRunning(name string) bool {
 }
 
 func stopDockerContainer(containerName string, pid int) {
+	if pid == -1 {
+		fmt.Println("Something went wrong. PID should not be -1")
+		log.Fatalln("Cannot kill a container with PID -1")
+	}
+
 	var stopCmd *exec.Cmd
 
 	stopCmd = exec.Command("docker", []string{"container", "stop", containerName}...)
