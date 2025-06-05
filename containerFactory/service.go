@@ -19,11 +19,6 @@ type Container interface {
 var containers = make(map[string][]container)
 var lock sync.Mutex
 
-type message struct {
-	messageType string
-	data        interface{}
-}
-
 type container struct {
 	pid int
 	dir string
@@ -119,6 +114,7 @@ func Close() {
 
 		go func(c container, wg *sync.WaitGroup) {
 			stopDockerContainer(c.Name, c.pid)
+			defer wg.Done()
 
 			err := os.RemoveAll(c.dir)
 
@@ -129,13 +125,9 @@ func Close() {
 
 				if err != nil {
 					fmt.Printf("Filesystem error: Cannot remove directory %s: %v. You will have to remove in manually\n", c.dir, err)
-					wg.Done()
-					// TODO: send slack error and log
 					return
 				}
 			}
-
-			wg.Done()
 		}(entry, &wg)
 	}
 

@@ -3,16 +3,11 @@ package containerFactory
 import (
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 	"regexp"
 	"strings"
 	"syscall"
 )
-
-func getVolumeDirectory(volume string) string {
-	return fmt.Sprintf("%s/%s", os.Getenv("EXECUTION_DIR"), volume)
-}
 
 func isContainerRunning(name string) bool {
 	cmd := exec.Command("docker", []string{

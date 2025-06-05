@@ -4,31 +4,31 @@ import (
 	"fmt"
 	"github.com/MarioLegenda/execman"
 	"github.com/MarioLegenda/execman/types"
+	"sync"
 )
 
 func main() {
 	emulator := execman.New(execman.Options{
-		CLang: execman.CLang{
-			Workers:    10,
-			Containers: 1,
-		},
 		Ruby: execman.Ruby{
-			Workers:    10,
-			Containers: 1,
+			Workers:    30,
+			Containers: 10,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
 
-	res := emulator.RunJob(string(types.CLang.Name), `
-#include <stdio.h>
+	wg := sync.WaitGroup{}
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
 
-int main() {
-	printf("Hello World");
+		go func() {
+			wg.Done()
 
-    return 0;
-}`)
-	fmt.Println(res)
+			res := emulator.RunJob(string(types.Ruby.Name), `puts "Hello world"`)
+			fmt.Println(res.Success)
+		}()
+	}
 
-	res = emulator.RunJob(string(types.Ruby.Name), `puts "Hello world"`)
-	fmt.Println(res)
+	wg.Wait()
+
+	emulator.Close()
 }
