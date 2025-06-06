@@ -214,22 +214,15 @@ func New(options Options) (Emulator, error) {
 		}
 
 		containers := containerFactory.Containers(c.Tag)
-		fmt.Println("getting containers listing")
 		containerNames := make([]string, len(containers))
 		for i, c := range containers {
 			containerNames[i] = c.Name
 		}
 
-		fmt.Println("Printing container names: ", containerNames)
-
 		balancer := newBalancer.New(c.WorkerNum, containerNames)
 		balancer.StartWorkers()
 		e.balancers[c.LangName] = balancer
-
-		fmt.Println("balancer created")
 	}
-
-	fmt.Println("done")
 
 	return e, nil
 }
@@ -249,7 +242,7 @@ func (em emulator) RunJob(language, content string) Result {
 		BuilderType:       "single_file",
 		ExecutionType:     "single_file",
 		EmulatorName:      string(lang.Name),
-		EmulatorExtension: string(lang.Extension),
+		EmulatorExtension: lang.Extension,
 		EmulatorText:      content,
 	})
 
@@ -258,6 +251,10 @@ func (em emulator) RunJob(language, content string) Result {
 
 func (em emulator) Close() {
 	containerFactory.Close()
+
+	for _, e := range em.balancers {
+		e.Close()
+	}
 
 	time.Sleep(5 * time.Second)
 	//FinalCleanup(true)
