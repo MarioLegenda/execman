@@ -5,6 +5,7 @@ import (
 	"github.com/MarioLegenda/execman/balancer"
 	"github.com/MarioLegenda/execman/balancer/runners"
 	"github.com/MarioLegenda/execman/containerFactory"
+	"github.com/MarioLegenda/execman/newBalancer"
 	"github.com/MarioLegenda/execman/sdk"
 	"sync"
 )
@@ -29,14 +30,16 @@ type Execution interface {
 }
 
 type execution struct {
-	controller map[string][]int32
-	balancers  map[string][]balancer.Balancer
-	lock       sync.Mutex
-	close      bool
-	name       string
+	controller   map[string][]int32
+	balancers    map[string][]balancer.Balancer
+	newBalancers []newBalancer.Balancer
+	lock         sync.Mutex
+	close        bool
+	name         string
 }
 
 type ContainerBlueprint struct {
+	LangName     string
 	WorkerNum    int
 	ContainerNum int
 	Tag          string

@@ -32,6 +32,7 @@ func makeBlocks(num int, delimiter int) [][]int {
 	return blocks
 }
 
+// DEPRECATED
 func FinalCleanup(log bool) {
 	stopAll := exec.Command("docker", "stop", "$(docker ps -a -q)")
 	err := stopAll.Run()

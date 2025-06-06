@@ -8,13 +8,15 @@ import (
 )
 
 func main() {
-	emulator := execman.New(execman.Options{
+	emulator, err := execman.New(execman.Options{
 		Ruby: execman.Ruby{
 			Workers:    30,
 			Containers: 10,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+
+	fmt.Println(err)
 
 	wg := sync.WaitGroup{}
 	for i := 0; i < 10; i++ {

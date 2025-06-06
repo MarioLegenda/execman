@@ -3,6 +3,8 @@ package execman
 import (
 	"errors"
 	"fmt"
+	"github.com/MarioLegenda/execman/containerFactory"
+	"github.com/MarioLegenda/execman/newBalancer"
 	"github.com/MarioLegenda/execman/types"
 	"log"
 	"os"
@@ -98,6 +100,7 @@ type Emulator interface {
 type emulator struct {
 	executionDir string
 	execution    *execution
+	balancers    map[string]*newBalancer.Balancer
 }
 
 type Options struct {
@@ -161,15 +164,74 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 *
 Initializes new execman instance
 */
-func New(options Options) Emulator {
+func New(options Options) (Emulator, error) {
 	initRequiredDirectories(true, options.ExecutionDirectory)
 
-	executioner := initExecutioners(options)
+	//executioner := initExecutioners(options)
 
-	return emulator{
+	e := emulator{
 		executionDir: options.ExecutionDirectory,
-		execution:    executioner,
+		balancers:    make(map[string]*newBalancer.Balancer),
 	}
+
+	containerBlueprints := []ContainerBlueprint{
+		createBlueprint(string(types.NodeLts.Name), string(types.NodeLts.Tag), options.NodeLts.Workers, options.NodeLts.Containers),
+		createBlueprint(string(types.Julia.Name), string(types.Julia.Tag), options.Julia.Workers, options.Julia.Containers),
+		createBlueprint(string(types.NodeEsm.Name), string(types.NodeEsm.Tag), options.NodeEsm.Workers, options.NodeEsm.Containers),
+		createBlueprint(string(types.Ruby.Name), string(types.Ruby.Tag), options.Ruby.Workers, options.Ruby.Containers),
+		createBlueprint(string(types.Rust.Name), string(types.Rust.Tag), options.Rust.Workers, options.Rust.Containers),
+		createBlueprint(string(types.CPlus.Name), string(types.CPlus.Tag), options.CPlus.Workers, options.CPlus.Containers),
+		createBlueprint(string(types.Haskell.Name), string(types.Haskell.Tag), options.Haskell.Workers, options.Haskell.Containers),
+		createBlueprint(string(types.CLang.Name), string(types.CLang.Tag), options.CLang.Workers, options.CLang.Containers),
+		createBlueprint(string(types.PerlLts.Name), string(types.PerlLts.Tag), options.Perl.Workers, options.Perl.Containers),
+		createBlueprint(string(types.CSharpMono.Name), string(types.CSharpMono.Tag), options.CSharp.Workers, options.CSharp.Containers),
+		createBlueprint(string(types.Python3.Name), string(types.Python3.Tag), options.Python3.Workers, options.Python3.Containers),
+		createBlueprint(string(types.Lua.Name), string(types.Lua.Tag), options.Lua.Workers, options.Lua.Containers),
+		createBlueprint(string(types.Python2.Name), string(types.Python2.Tag), options.Python2.Workers, options.Python2.Containers),
+		createBlueprint(string(types.Php74.Name), string(types.Php74.Tag), options.Php74.Workers, options.Php74.Containers),
+		createBlueprint(string(types.GoLang.Name), string(types.GoLang.Tag), options.GoLang.Workers, options.GoLang.Containers),
+	}
+
+	for _, c := range containerBlueprints {
+		// default case, user did not specify this language at all
+		if c.WorkerNum == 0 && c.ContainerNum == 0 {
+			continue
+		}
+
+		fmt.Println("Creating container: ", c.Tag)
+
+		errs := containerFactory.CreateContainers(options.ExecutionDirectory, c.Tag, c.ContainerNum)
+
+		if len(errs) != 0 {
+			e.Close()
+
+			log := ""
+			for _, err := range errs {
+				log += fmt.Sprintf("%s,", err.Error())
+			}
+
+			return emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s: %s", c.Tag, log))
+		}
+
+		containers := containerFactory.Containers(c.Tag)
+		fmt.Println("getting containers listing")
+		containerNames := make([]string, len(containers))
+		for i, c := range containers {
+			containerNames[i] = c.Name
+		}
+
+		fmt.Println("Printing container names: ", containerNames)
+
+		balancer := newBalancer.New(c.WorkerNum, containerNames)
+		balancer.StartWorkers()
+		e.balancers[c.LangName] = balancer
+
+		fmt.Println("balancer created")
+	}
+
+	fmt.Println("done")
+
+	return e, nil
 }
 
 func (em emulator) RunJob(language, content string) Result {
@@ -182,36 +244,23 @@ func (em emulator) RunJob(language, content string) Result {
 		}
 	}
 
-	res := em.execution.RunJob(Job{
+	em.balancers[lang.Language].AddJob(newBalancer.Job{
 		ExecutionDir:      em.executionDir,
 		BuilderType:       "single_file",
 		ExecutionType:     "single_file",
 		EmulatorName:      string(lang.Name),
-		EmulatorTag:       string(lang.Tag),
 		EmulatorExtension: string(lang.Extension),
 		EmulatorText:      content,
 	})
 
-	realResult := Result{
-		Result:  res.Result,
-		Success: res.Success,
-		Error:   nil,
-	}
-
-	if res.Error != nil {
-		realResult.Error = errors.New(res.Error.Error())
-	}
-
-	return realResult
+	return Result{}
 }
 
 func (em emulator) Close() {
-	if !em.execution.Closed() {
-		em.execution.Close()
-	}
+	containerFactory.Close()
 
 	time.Sleep(5 * time.Second)
-	FinalCleanup(true)
+	//FinalCleanup(true)
 }
 
 func initRequiredDirectories(output bool, executionDir string) {
@@ -282,7 +331,7 @@ func initExecutioners(options Options) *execution {
 
 	if err != nil {
 		fmt.Println(fmt.Sprintf("Cannot boot: %s", err.Error()))
-		
+
 		// TODO: investigate why is this here?
 		time.Sleep(5 * time.Second)
 
@@ -294,6 +343,7 @@ func initExecutioners(options Options) *execution {
 
 func createBlueprint(name, tag string, workers, containers int) ContainerBlueprint {
 	return ContainerBlueprint{
+		LangName:     name,
 		WorkerNum:    workers,
 		ContainerNum: containers,
 		Tag:          tag,
