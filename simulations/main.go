@@ -11,27 +11,27 @@ func main() {
 	emulator, _ := execman.New(execman.Options{
 		CPlus: execman.CPlus{
 			Workers:    1000,
-			Containers: 10,
+			Containers: 100,
 		},
 		Haskell: execman.Haskell{
 			Workers:    1000,
-			Containers: 10,
+			Containers: 100,
 		},
 		GoLang: execman.GoLang{
 			Workers:    1000,
-			Containers: 10,
+			Containers: 100,
 		},
 		Perl: execman.Perl{
 			Workers:    1000,
-			Containers: 10,
+			Containers: 100,
 		},
 		Lua: execman.Lua{
 			Workers:    1000,
-			Containers: 10,
+			Containers: 100,
 		},
 		CSharp: execman.CSharp{
 			Workers:    1000,
-			Containers: 10,
+			Containers: 100,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
