@@ -37,7 +37,7 @@ func main() {
 		go func() {
 			defer wg.Done()
 
-			_ = emulator.Run(execman.Golang, `
+			_ = emulator.Run(execman.RubyLang, `
 package main
 
 use "fmt"

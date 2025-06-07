@@ -15,7 +15,7 @@ func TestErrorsWithContainersAndWorkers(t *testing.T) {
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
 	assert.NotNil(t, err)
-	assert.True(t, errors.Is(err, ContainerCannotBoot))
+	assert.True(t, errors.Is(err, InvalidOptions))
 
 	em, err = New(Options{
 		Ruby: Ruby{
@@ -25,7 +25,7 @@ func TestErrorsWithContainersAndWorkers(t *testing.T) {
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
 	assert.NotNil(t, err)
-	assert.True(t, errors.Is(err, ContainerCannotBoot))
+	assert.True(t, errors.Is(err, InvalidOptions))
 
 	em.Close()
 }

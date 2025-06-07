@@ -195,11 +195,11 @@ func New(options Options) (Emulator, error) {
 	for _, c := range containerBlueprints {
 		// error if some options are specified but the system cannot work with those options
 		if c.WorkerNum == 0 && c.ContainerNum != 0 {
-			return Emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("%s cannot have no workers", c.LangName))
+			return Emulator{}, fmt.Errorf("%w: %s", InvalidOptions, fmt.Sprintf("%s cannot have no workers", c.LangName))
 		}
 
 		if c.WorkerNum != 0 && c.ContainerNum == 0 {
-			return Emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("%s cannot have no containers", c.LangName))
+			return Emulator{}, fmt.Errorf("%w: %s", InvalidOptions, fmt.Sprintf("%s cannot have no containers", c.LangName))
 		}
 	}
 

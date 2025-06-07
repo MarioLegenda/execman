@@ -73,7 +73,7 @@ ran by **docker exec**. It should be writeable. It can be anywhere you want but 
 best to be close to the application that you are workin on. 
 
 > [!CAUTION]
-> You have to call instance.Close(). This will stop all running containers
+> You have to call _instance.Close()_. This will stop all running containers
 > and workers that make the system that it is. If you don't do this, these
 > containers will still remain running and the volume directories will also
 > not get cleaned up. 
