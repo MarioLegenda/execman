@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/MarioLegenda/execman"
-	"github.com/MarioLegenda/execman/types"
 	"sync"
 )
 
@@ -11,7 +10,7 @@ func main() {
 	emulator, _ := execman.New(execman.Options{
 		CPlus: execman.CPlus{
 			Workers:    5,
-			Containers: 1,
+			Containers: 10,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
@@ -23,7 +22,7 @@ func main() {
 		go func() {
 			wg.Done()
 
-			res := emulator.Run(string(types.CPlus.Name), `
+			res := emulator.Run(execman.CPlusPlusLang, `
 #include <iostream>
 
 int main() {

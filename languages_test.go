@@ -1,7 +1,6 @@
 package execman
 
 import (
-	"github.com/MarioLegenda/execman/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -16,7 +15,7 @@ func TestRubyLanguage(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.Ruby.Name), `puts "Hello world"`)
+	res := em.Run(RubyLang, `puts "Hello world"`)
 
 	assert.Nil(t, res.Error)
 	assert.True(t, res.Success)
@@ -35,7 +34,7 @@ func TestCLanguage(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.CLang.Name), `
+	res := em.Run(C, `
 #include <stdio.h>
 
 int main() {
@@ -62,7 +61,7 @@ func TestCPlusPlusLanguage(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.CPlus.Name), `
+	res := em.Run(CPlusPlusLang, `
 #include <iostream>
 
 int main() {
@@ -87,7 +86,7 @@ func TestNodeLatestLanguage(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.NodeLts.Name), `console.log('Hello world')`)
+	res := em.Run(NodeLatestLang, `console.log('Hello world')`)
 
 	assert.Nil(t, res.Error)
 	assert.True(t, res.Success)
@@ -106,7 +105,7 @@ func TestPerlLanguage(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.PerlLts.Name), `
+	res := em.Run(PerlLtsLang, `
 #!/usr/bin/perl
 use warnings;
 print("Hello world\n");
@@ -129,7 +128,7 @@ func TestNodeEsmLanguage(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.NodeEsm.Name), `console.log('Hello world')`)
+	res := em.Run(NodeEsmLtsLang, `console.log('Hello world')`)
 
 	assert.Nil(t, res.Error)
 	assert.True(t, res.Success)
@@ -148,7 +147,7 @@ func TestGoLanguage(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.GoLang.Name), `
+	res := em.Run(Golang, `
 package main
 
 import "fmt"
@@ -175,7 +174,7 @@ func TestPython2Language(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.Python2.Name), `print("Hello world")`)
+	res := em.Run(Python2Lang, `print("Hello world")`)
 
 	assert.Nil(t, res.Error)
 	assert.True(t, res.Success)
@@ -194,7 +193,7 @@ func TestPython3Language(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.Python3.Name), `print("Hello world")`)
+	res := em.Run(Python3Lang, `print("Hello world")`)
 
 	assert.Nil(t, res.Error)
 	assert.True(t, res.Success)
@@ -213,7 +212,7 @@ func TestLuaLanguage(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
-	res := em.Run(string(types.Lua.Name), `print("Hello world")`)
+	res := em.Run(LuaLang, `print("Hello world")`)
 
 	assert.Nil(t, res.Error)
 	assert.True(t, res.Success)
