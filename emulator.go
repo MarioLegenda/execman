@@ -10,6 +10,13 @@ import (
 	"os"
 )
 
+type ContainerBlueprint struct {
+	LangName     string
+	WorkerNum    int
+	ContainerNum int
+	Tag          string
+}
+
 type Result struct {
 	Result  string
 	Success bool
@@ -93,7 +100,6 @@ type GoLang struct {
 
 type Emulator struct {
 	executionDir string
-	execution    *execution
 	balancers    map[string]*newBalancer.Balancer
 }
 
