@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"github.com/MarioLegenda/execman"
 	"log"
 	"sync"
-	"time"
 )
 
 func main() {
-	emulator, err := execman.New(execman.Options{
+	instance, err := execman.New(execman.Options{
 		GoLang: execman.GoLang{
 			Workers:    10,
 			Containers: 1,
@@ -29,7 +27,6 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	now := time.Now()
 	wg := sync.WaitGroup{}
 	for i := 0; i < 100; i++ {
 		wg.Add(1)
@@ -37,20 +34,25 @@ func main() {
 		go func() {
 			defer wg.Done()
 
-			_ = emulator.Run(execman.RubyLang, `
+			_ = instance.Run(execman.RubyLang, `puts "Hello world"`)
+			_ = instance.Run(execman.Golang, `
 package main
 
-use "fmt"
+import "fmt"
 
 func main() {
 	fmt.Println("Hello world")
+}
+`)
+			_ = instance.Run(execman.RustLang, `
+fn main() {
+    println!("Hello world");
 }
 `)
 		}()
 	}
 
 	wg.Wait()
-	fmt.Println(time.Since(now))
 
-	emulator.Close()
+	instance.Close()
 }

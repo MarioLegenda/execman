@@ -58,22 +58,115 @@ long time. On my computer, it takes around 10 minutes and takes up around 3GB on
 
 First, you have to create a new **execman** instance:
 
-    instance, err := execman.New(execman.Options{
-        Ruby: execman.Ruby{
-            Workers:    10,
-            Containers: 1,
-        },
-        ExecutionDirectory: "/home/user/go/my_package/execution_directory",
-    })
+````go
+package main
 
-    instance.Close()
+import (
+    "execman"
+    "fmt"
+)
+
+instance, err := execman.New(execman.Options{
+    Ruby: execman.Ruby{
+        Workers:    10,
+        Containers: 1,
+    },
+    ExecutionDirectory: "/home/user/go/my_package/execution_directory",
+})
+
+res := emulator.Run(execman.RubyLang, `puts "Hello world"`)
+
+fmt.Println(res)
+
+instance.Close()
+````
+
+`res` is in instance of `execman.Result` and it looks like this:
+
+````go
+type Result struct {
+    Result  string
+    Success bool
+    Error   error
+}
+````
 
 **ExecutionDirectory** is the volume directory where the files to run will be placed and
 ran by **docker exec**. It should be writeable. It can be anywhere you want but it is
-best to be close to the application that you are workin on. 
+best to be close to the application that you are working on. 
 
 > [!CAUTION]
 > You have to call _instance.Close()_. This will stop all running containers
 > and workers that make the system that it is. If you don't do this, these
 > containers will still remain running and the volume directories will also
 > not get cleaned up. 
+
+This example uses Ruby, but it can be any language you want as long as its supported. 
+Currently, **execman** supports languages that you can find in the _dockerImages_ directory.
+
+For example, here is a concurrent example of using it with many languages with
+100 concurrent requests to it:
+
+````go
+package main
+
+import (
+	"github.com/MarioLegenda/execman"
+	"log"
+	"sync"
+)
+
+func main() {
+instance, err := execman.New(execman.Options{
+	GoLang: execman.GoLang{
+		Workers:    10,
+		Containers: 1,
+	},
+	Ruby: execman.Ruby{
+		Workers:    10,
+		Containers: 1,
+	},
+	Rust: execman.Rust{
+		Workers:    10,
+		Containers: 1,
+	},
+	ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+})
+
+if err != nil {
+	log.Fatalln(err)
+}
+
+wg := sync.WaitGroup{}
+for i := 0; i < 100; i++ {
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+
+		_ = instance.Run(execman.RubyLang, `puts "Hello world"`)
+		_ = instance.Run(execman.Golang, `
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello world")
+}
+`)
+		_ = instance.Run(execman.RustLang, `
+fn main() {
+    println!("Hello world");
+}
+`)
+		}()
+	}
+
+	wg.Wait()
+
+	instance.Close()
+}
+
+````
+
+
