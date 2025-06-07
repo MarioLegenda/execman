@@ -96,6 +96,7 @@ func (b *Balancer) StartWorkers() {
 
 				select {
 				case <-b.done:
+					close(worker)
 					return
 				case job := <-worker:
 					// result of the job run

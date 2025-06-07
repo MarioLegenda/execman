@@ -236,7 +236,7 @@ func New(options Options) (Emulator, error) {
 				containerNames[i] = c.Name
 			}
 
-			b := balancer.New(c.WorkerNum, containerNames)
+			b := balancer.New(len(containers)*10, containerNames)
 			b.StartWorkers()
 			e.balancers[c.LangName] = b
 		}(c)
@@ -296,11 +296,11 @@ func (em Emulator) Run(language, content string) Result {
 }
 
 func (em Emulator) Close() {
-	containerFactory.Close()
-
 	for _, e := range em.balancers {
 		e.Close()
 	}
+
+	containerFactory.Close()
 }
 
 func initRequiredDirectories(output bool, executionDir string) {
