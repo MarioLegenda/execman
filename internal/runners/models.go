@@ -9,7 +9,7 @@ type Result struct {
 type name string
 
 type language struct {
-	name name `json:"name"`
+	name name
 }
 
 var nodeLts = language{

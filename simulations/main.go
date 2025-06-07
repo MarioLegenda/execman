@@ -11,8 +11,16 @@ import (
 func main() {
 	emulator, err := execman.New(execman.Options{
 		GoLang: execman.GoLang{
-			Workers:    100,
-			Containers: 10,
+			Workers:    10,
+			Containers: 1,
+		},
+		Ruby: execman.Ruby{
+			Workers:    10,
+			Containers: 1,
+		},
+		Rust: execman.Rust{
+			Workers:    10,
+			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
