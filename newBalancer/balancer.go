@@ -45,7 +45,7 @@ type Balancer struct {
 
 	// this balancer is also a lock since it needs to lock
 	// the access to containers and workerControllers members
-	lock sync.Mutex
+	sync.Mutex
 
 	done chan struct{}
 }
@@ -83,9 +83,9 @@ func (b *Balancer) AddJob(job Job) {
 
 	b.workers[workerIdx] <- job
 
-	b.lock.Lock()
+	b.Lock()
 	b.workerControllers[workerIdx]++
-	b.lock.Unlock()
+	b.Unlock()
 }
 
 func (b *Balancer) StartWorkers() {
@@ -112,10 +112,10 @@ func (b *Balancer) StartWorkers() {
 						PackageName: job.PackageName,
 					})
 
-					b.lock.Lock()
+					b.Lock()
 					b.workerControllers[workerIdx]--
 					b.containers[containerName]--
-					b.lock.Unlock()
+					b.Unlock()
 
 					job.ResultCh <- Result{
 						Result:  res.Result,
@@ -133,8 +133,8 @@ func (b *Balancer) Close() {
 }
 
 func pickWorker(b *Balancer) int {
-	b.lock.Lock()
-	defer b.lock.Unlock()
+	b.Lock()
+	defer b.Unlock()
 
 	leastJobs := math.MaxInt
 	leastBusyWorkerIdx := -1
@@ -151,8 +151,8 @@ func pickWorker(b *Balancer) int {
 }
 
 func pickContainer(b *Balancer) string {
-	b.lock.Lock()
-	defer b.lock.Unlock()
+	b.Lock()
+	defer b.Unlock()
 
 	leastBusyContainer := math.MaxInt
 	containers := b.containers

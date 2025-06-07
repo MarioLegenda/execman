@@ -9,9 +9,9 @@ import (
 
 func main() {
 	emulator, _ := execman.New(execman.Options{
-		Ruby: execman.Ruby{
+		CPlus: execman.CPlus{
 			Workers:    5,
-			Containers: 100,
+			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
@@ -23,7 +23,13 @@ func main() {
 		go func() {
 			wg.Done()
 
-			res := emulator.Run(string(types.Ruby.Name), `puts "Hello world"`)
+			res := emulator.Run(string(types.CPlus.Name), `
+#include <iostream>
+
+int main() {
+    std::cout << "Hello world";
+    return 0;
+}`)
 
 			fmt.Println(res)
 		}()

@@ -238,7 +238,7 @@ func (em Emulator) Run(language, content string) Result {
 	}
 
 	resultCh := make(chan newBalancer.Result)
-	em.balancers[lang.Language].AddJob(newBalancer.Job{
+	em.balancers[string(lang.Name)].AddJob(newBalancer.Job{
 		ExecutionDir:      em.executionDir,
 		BuilderType:       "single_file",
 		ExecutionType:     "single_file",
