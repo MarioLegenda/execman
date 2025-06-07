@@ -1,7 +1,7 @@
 package newBalancer
 
 import (
-	"github.com/MarioLegenda/execman/balancer/runners"
+	"github.com/MarioLegenda/execman/internal/runners"
 	"math"
 	"sync"
 )
