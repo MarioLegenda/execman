@@ -6,6 +6,12 @@ import (
 	"sync"
 )
 
+type Result struct {
+	Result  string
+	Success bool
+	Error   error
+}
+
 type Job struct {
 	ExecutionDir string
 
@@ -19,6 +25,8 @@ type Job struct {
 	EmulatorText      string
 
 	PackageName string
+
+	ResultCh chan Result
 }
 
 type Balancer struct {
@@ -91,7 +99,7 @@ func (b *Balancer) StartWorkers() {
 					return
 				case job := <-worker:
 					// result of the job run
-					_ = runners.Run(runners.Params{
+					res := runners.Run(runners.Params{
 						ExecutionDir: job.ExecutionDir,
 
 						BuilderType:       job.BuilderType,
@@ -108,6 +116,12 @@ func (b *Balancer) StartWorkers() {
 					b.workerControllers[workerIdx]--
 					b.containers[containerName]--
 					b.lock.Unlock()
+
+					job.ResultCh <- Result{
+						Result:  res.Result,
+						Success: res.Success,
+						Error:   res.Error,
+					}
 				}
 			}
 		}(workerIdx, worker)

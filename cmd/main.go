@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/MarioLegenda/execman"
 	"github.com/MarioLegenda/execman/types"
 	"sync"
@@ -22,7 +23,9 @@ func main() {
 		go func() {
 			wg.Done()
 
-			_ = emulator.Run(string(types.Ruby.Name), `puts "Hello world"`)
+			res := emulator.Run(string(types.Ruby.Name), `puts "Hello world"`)
+
+			fmt.Println(res)
 		}()
 	}
 
