@@ -101,14 +101,3 @@ var Julia = Language{
 	Tag:       "julia:julia",
 	Extension: "jl",
 }
-
-type SingleFileBuildResult struct {
-	ContainerName      string
-	DirectoryName      string
-	ExecutionDirectory string
-	FileName           string
-	Environment        *Language
-	StateDirectory     string
-	Timeout            int
-	Args               []string
-}
