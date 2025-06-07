@@ -7,13 +7,14 @@ import (
 )
 
 func TestRubyLanguage(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		Ruby: Ruby{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.Ruby.Name), `puts "Hello world"`)
 
@@ -25,13 +26,14 @@ func TestRubyLanguage(t *testing.T) {
 }
 
 func TestCLanguage(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		CLang: CLang{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.CLang.Name), `
 #include <stdio.h>
@@ -50,13 +52,14 @@ int main() {
 }
 
 func TestCPlusPlusLanguage(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		CPlus: CPlus{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.CPlus.Name), `
 #include <iostream>
@@ -74,13 +77,14 @@ int main() {
 }
 
 func TestNodeLatestLanguage(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		NodeLts: NodeLts{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.NodeLts.Name), `console.log('Hello world')`)
 
@@ -92,13 +96,14 @@ func TestNodeLatestLanguage(t *testing.T) {
 }
 
 func TestPerlLanguage(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		Perl: Perl{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.PerlLts.Name), `
 #!/usr/bin/perl
@@ -114,13 +119,14 @@ print("Hello world\n");
 }
 
 func TestNodeEsmLanguage(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		NodeEsm: NodeEsm{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.NodeEsm.Name), `console.log('Hello world')`)
 
@@ -132,13 +138,14 @@ func TestNodeEsmLanguage(t *testing.T) {
 }
 
 func TestGoLanguage(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		GoLang: GoLang{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.GoLang.Name), `
 package main
@@ -158,13 +165,14 @@ func main() {
 }
 
 func TestPython2Language(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		Python2: Python2{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.Python2.Name), `print("Hello world")`)
 
@@ -176,13 +184,14 @@ func TestPython2Language(t *testing.T) {
 }
 
 func TestPython3Language(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		Python3: Python3{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.Python3.Name), `print("Hello world")`)
 
@@ -194,13 +203,14 @@ func TestPython3Language(t *testing.T) {
 }
 
 func TestLuaLanguage(t *testing.T) {
-	em := New(Options{
+	em, err := New(Options{
 		Lua: Lua{
 			Workers:    10,
 			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+	assert.Nil(t, err)
 
 	res := em.RunJob(string(types.Lua.Name), `print("Hello world")`)
 

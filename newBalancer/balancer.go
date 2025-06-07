@@ -1,7 +1,6 @@
 package newBalancer
 
 import (
-	"fmt"
 	"github.com/MarioLegenda/execman/balancer/runners"
 	"math"
 	"sync"
@@ -74,8 +73,6 @@ func New(initialWorkers int, containers []string) *Balancer {
 func (b *Balancer) AddJob(job Job) {
 	workerIdx := pickWorker(b)
 
-	fmt.Println("worker controllers: ", b.workerControllers)
-
 	b.workers[workerIdx] <- job
 
 	b.lock.Lock()
@@ -88,8 +85,6 @@ func (b *Balancer) StartWorkers() {
 		go func(workerIdx int, worker chan Job) {
 			for {
 				containerName := pickContainer(b)
-
-				fmt.Println("container name: ", containerName)
 
 				select {
 				case <-b.done:

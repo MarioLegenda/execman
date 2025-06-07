@@ -8,7 +8,6 @@ import (
 	"github.com/MarioLegenda/execman/types"
 	"log"
 	"os"
-	"time"
 )
 
 type Result struct {
@@ -92,12 +91,7 @@ type GoLang struct {
 	Containers int
 }
 
-type Emulator interface {
-	RunJob(language string, content string) Result
-	Close()
-}
-
-type emulator struct {
+type Emulator struct {
 	executionDir string
 	execution    *execution
 	balancers    map[string]*newBalancer.Balancer
@@ -169,7 +163,7 @@ func New(options Options) (Emulator, error) {
 
 	//executioner := initExecutioners(options)
 
-	e := emulator{
+	e := Emulator{
 		executionDir: options.ExecutionDirectory,
 		balancers:    make(map[string]*newBalancer.Balancer),
 	}
@@ -210,7 +204,7 @@ func New(options Options) (Emulator, error) {
 				log += fmt.Sprintf("%s,", err.Error())
 			}
 
-			return emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s: %s", c.Tag, log))
+			return Emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s: %s", c.Tag, log))
 		}
 
 		containers := containerFactory.Containers(c.Tag)
@@ -227,7 +221,7 @@ func New(options Options) (Emulator, error) {
 	return e, nil
 }
 
-func (em emulator) RunJob(language, content string) Result {
+func (em Emulator) Run(language, content string) Result {
 	lang, err := selectProgrammingLanguage(language)
 	if err != nil {
 		return Result{
@@ -249,14 +243,12 @@ func (em emulator) RunJob(language, content string) Result {
 	return Result{}
 }
 
-func (em emulator) Close() {
+func (em Emulator) Close() {
 	containerFactory.Close()
 
 	for _, e := range em.balancers {
 		e.Close()
 	}
-
-	time.Sleep(5 * time.Second)
 	//FinalCleanup(true)
 }
 
@@ -305,37 +297,6 @@ func initRequiredDirectories(output bool, executionDir string) {
 			fmt.Println("")
 		}
 	}
-}
-
-func initExecutioners(options Options) *execution {
-	exec, err := Init(options.ExecutionDirectory, []ContainerBlueprint{
-		createBlueprint("NODE_LTS", string(types.NodeLts.Tag), options.NodeLts.Workers, options.NodeLts.Containers),
-		createBlueprint("JULIA", string(types.Julia.Tag), options.Julia.Workers, options.Julia.Containers),
-		createBlueprint("NODE_ESM", string(types.NodeEsm.Tag), options.NodeEsm.Workers, options.NodeEsm.Containers),
-		createBlueprint("RUBY", string(types.Ruby.Tag), options.Ruby.Workers, options.Ruby.Containers),
-		createBlueprint("RUST", string(types.Rust.Tag), options.Rust.Workers, options.Rust.Containers),
-		createBlueprint("CPLUS", string(types.CPlus.Tag), options.CPlus.Workers, options.CPlus.Containers),
-		createBlueprint("HASKELL", string(types.Haskell.Tag), options.Haskell.Workers, options.Haskell.Containers),
-		createBlueprint("C", string(types.CLang.Tag), options.CLang.Workers, options.CLang.Containers),
-		createBlueprint("PERL", string(types.PerlLts.Tag), options.Perl.Workers, options.Perl.Containers),
-		createBlueprint("C_SHARP", string(types.CSharpMono.Tag), options.CSharp.Workers, options.CSharp.Containers),
-		createBlueprint("PYTHON3", string(types.Python3.Tag), options.Python3.Workers, options.Python3.Containers),
-		createBlueprint("LUA", string(types.Lua.Tag), options.Lua.Workers, options.Lua.Containers),
-		createBlueprint("PYTHON2", string(types.Python2.Tag), options.Python2.Workers, options.Python2.Containers),
-		createBlueprint("PHP74", string(types.Php74.Tag), options.Php74.Workers, options.Php74.Containers),
-		createBlueprint("GO", string(types.GoLang.Tag), options.GoLang.Workers, options.GoLang.Containers),
-	})
-
-	if err != nil {
-		fmt.Println(fmt.Sprintf("Cannot boot: %s", err.Error()))
-
-		// TODO: investigate why is this here?
-		time.Sleep(5 * time.Second)
-
-		log.Fatalln("Cannot boot executioners")
-	}
-
-	return exec
 }
 
 func createBlueprint(name, tag string, workers, containers int) ContainerBlueprint {

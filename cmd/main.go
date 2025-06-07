@@ -10,7 +10,7 @@ func main() {
 	emulator, _ := execman.New(execman.Options{
 		Ruby: execman.Ruby{
 			Workers:    5,
-			Containers: 10,
+			Containers: 100,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
@@ -22,7 +22,7 @@ func main() {
 		go func() {
 			wg.Done()
 
-			_ = emulator.RunJob(string(types.Ruby.Name), `puts "Hello world"`)
+			_ = emulator.Run(string(types.Ruby.Name), `puts "Hello world"`)
 		}()
 	}
 
