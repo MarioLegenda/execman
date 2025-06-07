@@ -3,8 +3,8 @@ package execman
 import (
 	"errors"
 	"fmt"
+	"github.com/MarioLegenda/execman/internal/balancer"
 	"github.com/MarioLegenda/execman/internal/containerFactory"
-	"github.com/MarioLegenda/execman/internal/newBalancer"
 	"github.com/MarioLegenda/execman/internal/types"
 	"log"
 	"os"
@@ -100,7 +100,7 @@ type GoLang struct {
 
 type Emulator struct {
 	executionDir string
-	balancers    map[string]*newBalancer.Balancer
+	balancers    map[string]*balancer.Balancer
 }
 
 type Options struct {
@@ -169,7 +169,7 @@ func New(options Options) (Emulator, error) {
 
 	e := Emulator{
 		executionDir: options.ExecutionDirectory,
-		balancers:    make(map[string]*newBalancer.Balancer),
+		balancers:    make(map[string]*balancer.Balancer),
 	}
 
 	containerBlueprints := []ContainerBlueprint{
@@ -217,7 +217,7 @@ func New(options Options) (Emulator, error) {
 			containerNames[i] = c.Name
 		}
 
-		balancer := newBalancer.New(c.WorkerNum, containerNames)
+		balancer := balancer.New(c.WorkerNum, containerNames)
 		balancer.StartWorkers()
 		e.balancers[c.LangName] = balancer
 	}
@@ -235,8 +235,8 @@ func (em Emulator) Run(language, content string) Result {
 		}
 	}
 
-	resultCh := make(chan newBalancer.Result)
-	em.balancers[string(lang.Name)].AddJob(newBalancer.Job{
+	resultCh := make(chan balancer.Result)
+	em.balancers[string(lang.Name)].AddJob(balancer.Job{
 		ExecutionDir:      em.executionDir,
 		BuilderType:       "single_file",
 		ExecutionType:     "single_file",

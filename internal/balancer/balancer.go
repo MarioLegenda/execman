@@ -1,4 +1,4 @@
-package newBalancer
+package balancer
 
 import (
 	"github.com/MarioLegenda/execman/internal/runners"
