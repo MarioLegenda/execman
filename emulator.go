@@ -8,9 +8,10 @@ import (
 	"github.com/MarioLegenda/execman/internal/types"
 	"log"
 	"os"
+	"sync"
 )
 
-type ContainerBlueprint struct {
+type containerBlueprint struct {
 	LangName     string
 	WorkerNum    int
 	ContainerNum int
@@ -172,7 +173,7 @@ func New(options Options) (Emulator, error) {
 		balancers:    make(map[string]*balancer.Balancer),
 	}
 
-	containerBlueprints := []ContainerBlueprint{
+	containerBlueprints := []containerBlueprint{
 		createBlueprint(NodeLatestLang, "node:node_latest", options.NodeLts.Workers, options.NodeLts.Containers),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers),
 		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers),
@@ -192,11 +193,6 @@ func New(options Options) (Emulator, error) {
 
 	// perform initial validation
 	for _, c := range containerBlueprints {
-		// default case, user did not specify this language at all
-		if c.WorkerNum == 0 && c.ContainerNum == 0 {
-			continue
-		}
-
 		// error if some options are specified but the system cannot work with those options
 		if c.WorkerNum == 0 && c.ContainerNum != 0 {
 			return Emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("%s cannot have no workers", c.LangName))
@@ -207,33 +203,55 @@ func New(options Options) (Emulator, error) {
 		}
 	}
 
+	wg := sync.WaitGroup{}
+	containerErrors := make([]error, 0)
 	for _, c := range containerBlueprints {
-		fmt.Printf("Creating containter [%s]\n", c.Tag)
+		// default case, user did not specify this language at all
+		if c.WorkerNum == 0 && c.ContainerNum == 0 {
+			continue
+		}
 
-		errs := containerFactory.CreateContainers(options.ExecutionDirectory, c.Tag, c.ContainerNum)
+		wg.Add(1)
+		go func(c containerBlueprint) {
+			defer wg.Done()
 
-		if len(errs) != 0 {
-			e.Close()
+			fmt.Printf("Creating containters for [%s]\n", c.Tag)
 
-			log := ""
-			for _, err := range errs {
-				log += fmt.Sprintf("%s,", err.Error())
+			errs := containerFactory.CreateContainers(options.ExecutionDirectory, c.Tag, c.ContainerNum)
+
+			if len(errs) != 0 {
+				e.Close()
+
+				combinedLogging := ""
+				for _, err := range errs {
+					combinedLogging += fmt.Sprintf("%s,", err.Error())
+				}
+
+				containerErrors = append(errs, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s: %s", c.Tag, combinedLogging)))
 			}
 
-			return Emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s: %s", c.Tag, log))
-		}
+			containers := containerFactory.Containers(c.Tag)
+			containerNames := make([]string, len(containers))
+			for i, c := range containers {
+				containerNames[i] = c.Name
+			}
 
-		containers := containerFactory.Containers(c.Tag)
-		containerNames := make([]string, len(containers))
-		for i, c := range containers {
-			containerNames[i] = c.Name
-		}
-
-		b := balancer.New(c.WorkerNum, containerNames)
-		b.StartWorkers()
-		e.balancers[c.LangName] = b
+			b := balancer.New(c.WorkerNum, containerNames)
+			b.StartWorkers()
+			e.balancers[c.LangName] = b
+		}(c)
 	}
 
+	wg.Wait()
+
+	if len(containerErrors) != 0 {
+		fmt.Println("Some containers could not run. Below is are the errors of those containers:")
+		for _, e := range containerErrors {
+			fmt.Println(e.Error())
+		}
+
+		return e, ContainerCannotBoot
+	}
 	fmt.Println("execman is ready to be used!")
 
 	return e, nil
@@ -324,8 +342,8 @@ func initRequiredDirectories(output bool, executionDir string) {
 	}
 }
 
-func createBlueprint(name, tag string, workers, containers int) ContainerBlueprint {
-	return ContainerBlueprint{
+func createBlueprint(name, tag string, workers, containers int) containerBlueprint {
+	return containerBlueprint{
 		LangName:     name,
 		WorkerNum:    workers,
 		ContainerNum: containers,

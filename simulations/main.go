@@ -11,7 +11,19 @@ func main() {
 	emulator, _ := execman.New(execman.Options{
 		CPlus: execman.CPlus{
 			Workers:    1000,
-			Containers: 100,
+			Containers: 10,
+		},
+		Haskell: execman.Haskell{
+			Workers:    1000,
+			Containers: 10,
+		},
+		GoLang: execman.GoLang{
+			Workers:    1000,
+			Containers: 10,
+		},
+		Perl: execman.Perl{
+			Workers:    1000,
+			Containers: 10,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
