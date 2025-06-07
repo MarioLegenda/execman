@@ -3,9 +3,9 @@ package execman
 import (
 	"errors"
 	"fmt"
-	"github.com/MarioLegenda/execman/containerFactory"
-	"github.com/MarioLegenda/execman/newBalancer"
-	"github.com/MarioLegenda/execman/types"
+	"github.com/MarioLegenda/execman/internal/containerFactory"
+	"github.com/MarioLegenda/execman/internal/newBalancer"
+	"github.com/MarioLegenda/execman/internal/types"
 	"log"
 	"os"
 )
