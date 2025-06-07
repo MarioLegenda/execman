@@ -1,9 +1,34 @@
 package execman
 
 import (
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+func TestErrorsWithContainersAndWorkers(t *testing.T) {
+	em, err := New(Options{
+		Ruby: Ruby{
+			Workers:    0,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.NotNil(t, err)
+	assert.True(t, errors.Is(err, ContainerCannotBoot))
+
+	em, err = New(Options{
+		Ruby: Ruby{
+			Workers:    10,
+			Containers: 0,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.NotNil(t, err)
+	assert.True(t, errors.Is(err, ContainerCannotBoot))
+
+	em.Close()
+}
 
 func TestRubyLanguage(t *testing.T) {
 	em, err := New(Options{

@@ -10,7 +10,7 @@ import (
 func main() {
 	emulator, _ := execman.New(execman.Options{
 		CPlus: execman.CPlus{
-			Workers:    1000,
+			Workers:    10,
 			Containers: 100,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",

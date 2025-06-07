@@ -23,6 +23,11 @@ type Result struct {
 	Error   error
 }
 
+type Option struct {
+	Workers    int
+	Containers int
+}
+
 type NodeLts struct {
 	Workers    int
 	Containers int
@@ -121,7 +126,6 @@ type Options struct {
 	GoLang
 
 	ExecutionDirectory string
-	LogDirectory       string
 }
 
 func selectProgrammingLanguage(name string) (types.Language, error) {
@@ -160,10 +164,6 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 	return types.Language{}, errors.New(fmt.Sprintf("Cannot find language %s", name))
 }
 
-/*
-*
-Initializes new execman instance
-*/
 func New(options Options) (Emulator, error) {
 	initRequiredDirectories(true, options.ExecutionDirectory)
 
@@ -194,6 +194,14 @@ func New(options Options) (Emulator, error) {
 		// default case, user did not specify this language at all
 		if c.WorkerNum == 0 && c.ContainerNum == 0 {
 			continue
+		}
+
+		if c.WorkerNum == 0 && c.ContainerNum != 0 {
+			return Emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("%s cannot have no workers", c.LangName))
+		}
+
+		if c.WorkerNum != 0 && c.ContainerNum == 0 {
+			return Emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("%s cannot have no containers", c.LangName))
 		}
 
 		fmt.Println("Creating container: ", c.Tag)
@@ -261,7 +269,6 @@ func (em Emulator) Close() {
 	for _, e := range em.balancers {
 		e.Close()
 	}
-	//FinalCleanup(true)
 }
 
 func initRequiredDirectories(output bool, executionDir string) {
