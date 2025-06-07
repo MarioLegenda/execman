@@ -1,4 +1,4 @@
-package single
+package builders
 
 import (
 	"fmt"
@@ -6,44 +6,44 @@ import (
 	"os"
 )
 
-type CsharpSingleFileBuildResult struct {
+type CPlusSingleFileBuildResult struct {
 	ContainerDirectory string
 	ExecutionDirectory string
 	FileName           string
 }
 
-type CsharpSingleFileBuildParams struct {
+type CPlusSingleFileBuildParams struct {
 	Extension string
 	Text      string
 	StateDir  string
 }
 
-func InitCsharpParams(ext string, text string, stateDir string) CsharpSingleFileBuildParams {
-	return CsharpSingleFileBuildParams{
+func InitCPlusParams(ext string, text string, stateDir string) CPlusSingleFileBuildParams {
+	return CPlusSingleFileBuildParams{
 		Extension: ext,
 		Text:      text,
 		StateDir:  stateDir,
 	}
 }
 
-func CsharpSingleFileBuild(params CsharpSingleFileBuildParams) (CsharpSingleFileBuildResult, error) {
+func CPlusSingleFileBuild(params CPlusSingleFileBuildParams) (CPlusSingleFileBuildResult, error) {
 	dirName := uuid.New().String()
 	tempExecutionDir := fmt.Sprintf("%s/%s", params.StateDir, dirName)
 	fileName := fmt.Sprintf("%s.%s", dirName, params.Extension)
 
 	if err := os.MkdirAll(tempExecutionDir, os.ModePerm); err != nil {
-		return CsharpSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
+		return CPlusSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
 	}
 
 	if err := writeContent(fileName, tempExecutionDir, params.Text); err != nil {
-		return CsharpSingleFileBuildResult{}, err
+		return CPlusSingleFileBuildResult{}, err
 	}
 
 	if err := writeContent("output.txt", tempExecutionDir, ""); err != nil {
-		return CsharpSingleFileBuildResult{}, err
+		return CPlusSingleFileBuildResult{}, err
 	}
 
-	return CsharpSingleFileBuildResult{
+	return CPlusSingleFileBuildResult{
 		ContainerDirectory: dirName,
 		ExecutionDirectory: tempExecutionDir,
 		FileName:           fileName,

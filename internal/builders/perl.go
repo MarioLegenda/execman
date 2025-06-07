@@ -1,4 +1,4 @@
-package single
+package builders
 
 import (
 	"fmt"
@@ -6,45 +6,45 @@ import (
 	"os"
 )
 
-type JuliaSingleFileBuildResult struct {
+type PerlSingleFileBuildResult struct {
 	ContainerDirectory string
 	ExecutionDirectory string
 	FileName           string
 }
 
-type JuliaSingleFileBuildParams struct {
+type PerlSingleFileBuildParams struct {
 	Extension string
 	Text      string
 	StateDir  string
 }
 
-func InitJuliaParams(ext string, text string, stateDir string) JuliaSingleFileBuildParams {
-	return JuliaSingleFileBuildParams{
+func InitPerlParams(ext string, text string, stateDir string) PerlSingleFileBuildParams {
+	return PerlSingleFileBuildParams{
 		Extension: ext,
 		Text:      text,
 		StateDir:  stateDir,
 	}
 }
 
-func JuliaSingleFileBuild(params JuliaSingleFileBuildParams) (JuliaSingleFileBuildResult, error) {
+func PerlSingleFileBuild(params PerlSingleFileBuildParams) (PerlSingleFileBuildResult, error) {
 	dirName := uuid.New().String()
 	tempExecutionDir := fmt.Sprintf("%s/%s", params.StateDir, dirName)
 	fileName := fmt.Sprintf("%s.%s", dirName, params.Extension)
 
 	if err := os.MkdirAll(tempExecutionDir, os.ModePerm); err != nil {
-		return JuliaSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
+		return PerlSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
 	}
 
 	if err := writeContent(fileName, tempExecutionDir, params.Text); err != nil {
-		return JuliaSingleFileBuildResult{}, err
+		return PerlSingleFileBuildResult{}, err
 	}
 
 	if err := writeContent("output.txt", tempExecutionDir, ""); err != nil {
-		return JuliaSingleFileBuildResult{}, err
+		return PerlSingleFileBuildResult{}, err
 	}
 
-	return JuliaSingleFileBuildResult{
-		ContainerDirectory: dirName,
+	return PerlSingleFileBuildResult{
+		ContainerDirectory: fmt.Sprintf("/app/%s", dirName),
 		ExecutionDirectory: tempExecutionDir,
 		FileName:           fileName,
 	}, nil

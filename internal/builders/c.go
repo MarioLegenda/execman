@@ -1,4 +1,4 @@
-package single
+package builders
 
 import (
 	"fmt"
@@ -6,45 +6,47 @@ import (
 	"os"
 )
 
-type PerlSingleFileBuildResult struct {
+type CSingleFileBuildResult struct {
 	ContainerDirectory string
 	ExecutionDirectory string
 	FileName           string
 }
 
-type PerlSingleFileBuildParams struct {
+type CSingleFileBuildParams struct {
 	Extension string
 	Text      string
 	StateDir  string
 }
 
-func InitPerlParams(ext string, text string, stateDir string) PerlSingleFileBuildParams {
-	return PerlSingleFileBuildParams{
+var outb, errb string
+
+func InitCParams(ext string, text string, stateDir string) CSingleFileBuildParams {
+	return CSingleFileBuildParams{
 		Extension: ext,
 		Text:      text,
 		StateDir:  stateDir,
 	}
 }
 
-func PerlSingleFileBuild(params PerlSingleFileBuildParams) (PerlSingleFileBuildResult, error) {
+func CSingleFileBuild(params CSingleFileBuildParams) (CSingleFileBuildResult, error) {
 	dirName := uuid.New().String()
 	tempExecutionDir := fmt.Sprintf("%s/%s", params.StateDir, dirName)
 	fileName := fmt.Sprintf("%s.%s", dirName, params.Extension)
 
 	if err := os.MkdirAll(tempExecutionDir, os.ModePerm); err != nil {
-		return PerlSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
+		return CSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
 	}
 
 	if err := writeContent(fileName, tempExecutionDir, params.Text); err != nil {
-		return PerlSingleFileBuildResult{}, err
+		return CSingleFileBuildResult{}, err
 	}
 
 	if err := writeContent("output.txt", tempExecutionDir, ""); err != nil {
-		return PerlSingleFileBuildResult{}, err
+		return CSingleFileBuildResult{}, err
 	}
 
-	return PerlSingleFileBuildResult{
-		ContainerDirectory: fmt.Sprintf("/app/%s", dirName),
+	return CSingleFileBuildResult{
+		ContainerDirectory: dirName,
 		ExecutionDirectory: tempExecutionDir,
 		FileName:           fileName,
 	}, nil

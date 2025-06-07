@@ -1,4 +1,4 @@
-package single
+package builders
 
 import (
 	"fmt"
@@ -6,46 +6,44 @@ import (
 	"os"
 )
 
-type CSingleFileBuildResult struct {
+type PythonSingleFileBuildResult struct {
 	ContainerDirectory string
 	ExecutionDirectory string
 	FileName           string
 }
 
-type CSingleFileBuildParams struct {
+type PythonSingleFileBuildParams struct {
 	Extension string
 	Text      string
 	StateDir  string
 }
 
-var outb, errb string
-
-func InitCParams(ext string, text string, stateDir string) CSingleFileBuildParams {
-	return CSingleFileBuildParams{
+func InitPythonParams(ext string, text string, stateDir string) RubySingleFileBuildParams {
+	return RubySingleFileBuildParams{
 		Extension: ext,
 		Text:      text,
 		StateDir:  stateDir,
 	}
 }
 
-func CSingleFileBuild(params CSingleFileBuildParams) (CSingleFileBuildResult, error) {
+func PythonSingleFileBuild(params RubySingleFileBuildParams) (PythonSingleFileBuildResult, error) {
 	dirName := uuid.New().String()
 	tempExecutionDir := fmt.Sprintf("%s/%s", params.StateDir, dirName)
 	fileName := fmt.Sprintf("%s.%s", dirName, params.Extension)
 
 	if err := os.MkdirAll(tempExecutionDir, os.ModePerm); err != nil {
-		return CSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
+		return PythonSingleFileBuildResult{}, fmt.Errorf("%w: %s", FilesystemError, fmt.Sprintf("Cannot create execution dir: %s", err.Error()))
 	}
 
 	if err := writeContent(fileName, tempExecutionDir, params.Text); err != nil {
-		return CSingleFileBuildResult{}, err
+		return PythonSingleFileBuildResult{}, err
 	}
 
 	if err := writeContent("output.txt", tempExecutionDir, ""); err != nil {
-		return CSingleFileBuildResult{}, err
+		return PythonSingleFileBuildResult{}, err
 	}
 
-	return CSingleFileBuildResult{
+	return PythonSingleFileBuildResult{
 		ContainerDirectory: dirName,
 		ExecutionDirectory: tempExecutionDir,
 		FileName:           fileName,
