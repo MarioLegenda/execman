@@ -236,7 +236,7 @@ func New(options Options) (Emulator, error) {
 				containerNames[i] = c.Name
 			}
 
-			b := balancer.New(len(containers)*10, containerNames)
+			b := balancer.New(c.WorkerNum, containerNames)
 			b.StartWorkers()
 			e.balancers[c.LangName] = b
 		}(c)
