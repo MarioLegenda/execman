@@ -167,29 +167,27 @@ Initializes new execman instance
 func New(options Options) (Emulator, error) {
 	initRequiredDirectories(true, options.ExecutionDirectory)
 
-	//executioner := initExecutioners(options)
-
 	e := Emulator{
 		executionDir: options.ExecutionDirectory,
 		balancers:    make(map[string]*newBalancer.Balancer),
 	}
 
 	containerBlueprints := []ContainerBlueprint{
-		createBlueprint(string(types.NodeLts.Name), string(types.NodeLts.Tag), options.NodeLts.Workers, options.NodeLts.Containers),
-		createBlueprint(string(types.Julia.Name), string(types.Julia.Tag), options.Julia.Workers, options.Julia.Containers),
-		createBlueprint(string(types.NodeEsm.Name), string(types.NodeEsm.Tag), options.NodeEsm.Workers, options.NodeEsm.Containers),
-		createBlueprint(string(types.Ruby.Name), string(types.Ruby.Tag), options.Ruby.Workers, options.Ruby.Containers),
-		createBlueprint(string(types.Rust.Name), string(types.Rust.Tag), options.Rust.Workers, options.Rust.Containers),
-		createBlueprint(string(types.CPlus.Name), string(types.CPlus.Tag), options.CPlus.Workers, options.CPlus.Containers),
-		createBlueprint(string(types.Haskell.Name), string(types.Haskell.Tag), options.Haskell.Workers, options.Haskell.Containers),
-		createBlueprint(string(types.CLang.Name), string(types.CLang.Tag), options.CLang.Workers, options.CLang.Containers),
-		createBlueprint(string(types.PerlLts.Name), string(types.PerlLts.Tag), options.Perl.Workers, options.Perl.Containers),
-		createBlueprint(string(types.CSharpMono.Name), string(types.CSharpMono.Tag), options.CSharp.Workers, options.CSharp.Containers),
-		createBlueprint(string(types.Python3.Name), string(types.Python3.Tag), options.Python3.Workers, options.Python3.Containers),
-		createBlueprint(string(types.Lua.Name), string(types.Lua.Tag), options.Lua.Workers, options.Lua.Containers),
-		createBlueprint(string(types.Python2.Name), string(types.Python2.Tag), options.Python2.Workers, options.Python2.Containers),
-		createBlueprint(string(types.Php74.Name), string(types.Php74.Tag), options.Php74.Workers, options.Php74.Containers),
-		createBlueprint(string(types.GoLang.Name), string(types.GoLang.Tag), options.GoLang.Workers, options.GoLang.Containers),
+		createBlueprint(NodeLatestLang, string(types.NodeLts.Tag), options.NodeLts.Workers, options.NodeLts.Containers),
+		createBlueprint(JuliaLang, string(types.Julia.Tag), options.Julia.Workers, options.Julia.Containers),
+		createBlueprint(NodeEsmLtsLang, string(types.NodeEsm.Tag), options.NodeEsm.Workers, options.NodeEsm.Containers),
+		createBlueprint(RubyLang, string(types.Ruby.Tag), options.Ruby.Workers, options.Ruby.Containers),
+		createBlueprint(RustLang, string(types.Rust.Tag), options.Rust.Workers, options.Rust.Containers),
+		createBlueprint(CPlusPlusLang, string(types.CPlus.Tag), options.CPlus.Workers, options.CPlus.Containers),
+		createBlueprint(HaskellLang, string(types.Haskell.Tag), options.Haskell.Workers, options.Haskell.Containers),
+		createBlueprint(C, string(types.CLang.Tag), options.CLang.Workers, options.CLang.Containers),
+		createBlueprint(PerlLtsLang, string(types.PerlLts.Tag), options.Perl.Workers, options.Perl.Containers),
+		createBlueprint(CSharpLang, string(types.CSharpMono.Tag), options.CSharp.Workers, options.CSharp.Containers),
+		createBlueprint(Python3Lang, string(types.Python3.Tag), options.Python3.Workers, options.Python3.Containers),
+		createBlueprint(LuaLang, string(types.Lua.Tag), options.Lua.Workers, options.Lua.Containers),
+		createBlueprint(Python2Lang, string(types.Python2.Tag), options.Python2.Workers, options.Python2.Containers),
+		createBlueprint(PHPLang, string(types.Php74.Tag), options.Php74.Workers, options.Php74.Containers),
+		createBlueprint(Golang, string(types.GoLang.Tag), options.GoLang.Workers, options.GoLang.Containers),
 	}
 
 	for _, c := range containerBlueprints {

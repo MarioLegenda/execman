@@ -98,8 +98,6 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 		wg.Wait()
 	}
 
-	time.Sleep(2 * time.Second)
-
 	return errs
 }
 
