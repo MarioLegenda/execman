@@ -150,7 +150,7 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.CLang, nil
 	} else if name == "perl" {
 		return types.PerlLts, nil
-	} else if name == "csharp" {
+	} else if name == "c_sharp_mono" {
 		return types.CSharpMono, nil
 	} else if name == "python3" {
 		return types.Python3, nil
@@ -187,7 +187,7 @@ func New(options Options) (Emulator, error) {
 		createBlueprint(Python3Lang, "python:python3", options.Python3.Workers, options.Python3.Containers),
 		createBlueprint(LuaLang, "lua:lua", options.Lua.Workers, options.Lua.Containers),
 		createBlueprint(Python2Lang, "python:python2", options.Python2.Workers, options.Python2.Containers),
-		createBlueprint(PHPLang, "php:php7.4", options.Php74.Workers, options.Php74.Containers),
+		createBlueprint(PHP74Lang, "php:php7.4", options.Php74.Workers, options.Php74.Containers),
 		createBlueprint(Golang, "go:go_v18", options.GoLang.Workers, options.GoLang.Containers),
 	}
 
@@ -250,6 +250,10 @@ func New(options Options) (Emulator, error) {
 			fmt.Println(e.Error())
 		}
 
+		// if there are errors with creating some containers, others might
+		// already be created. We call Close() here to stop those containers
+		e.Close()
+
 		return e, ContainerCannotBoot
 	}
 	fmt.Println("execman is ready to be used!")
@@ -288,6 +292,7 @@ func (em Emulator) Run(language, content string) Result {
 }
 
 func (em Emulator) Close() {
+	fmt.Println("Closing containers and balancers!")
 	containerFactory.Close()
 
 	for _, e := range em.balancers {

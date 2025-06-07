@@ -245,3 +245,116 @@ func TestLuaLanguage(t *testing.T) {
 
 	em.Close()
 }
+
+func TestHaskellLanguage(t *testing.T) {
+	em, err := New(Options{
+		Haskell: Haskell{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(HaskellLang, `main = putStrLn "Hello world"`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+}
+
+func TestCSharpLanguage(t *testing.T) {
+	em, err := New(Options{
+		CSharp: CSharp{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(CSharpLang, `
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("Hello world");
+    }
+}
+`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+}
+
+func TestPHP74Language(t *testing.T) {
+	em, err := New(Options{
+		Php74: Php74{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(PHP74Lang, `
+<?php
+echo "Hello world";
+?>
+`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "\nHello world")
+
+	em.Close()
+}
+
+func TestRustLanguage(t *testing.T) {
+	em, err := New(Options{
+		Rust: Rust{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(RustLang, `
+fn main() {
+    println!("Hello world");
+}
+`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+}
+
+func TestJuliaLanguage(t *testing.T) {
+	em, err := New(Options{
+		Julia: Julia{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(JuliaLang, `print("Hello world")`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world")
+
+	em.Close()
+}

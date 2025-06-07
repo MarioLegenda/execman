@@ -25,6 +25,14 @@ func main() {
 			Workers:    1000,
 			Containers: 10,
 		},
+		Lua: execman.Lua{
+			Workers:    1000,
+			Containers: 10,
+		},
+		CSharp: execman.CSharp{
+			Workers:    1000,
+			Containers: 10,
+		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
 
