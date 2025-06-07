@@ -27,8 +27,53 @@ that you specify to boot up.
 
 For example, if you have 10 workers and 1 container for the Ruby language, 10 requests will be executed
 in parallel on this one container in roughly the time that it takes to actually execute them on your own local
-machine without booting up your the container since it is already running. 
+machine without booting up your the container since it is already running.
+
+# What execman isn't
+
+It is not a long-running process. It is meant to be created, run some code and closed. 
+Use it in a long-running process such as an HTTP server. Also, shutting it down with a SIGTERM
+such as with Ctrl+C will not clean up containers that are created so if you start running it
+and close it abruptly, those containers will still remain up so keep that in mind. 
+
+It is also not meant to be used inside a docker container since every container needs its own
+volume in order to execute code with it. 
 
 # How to use it
 
+### Installing docker images
 
+First, you need to install the docker images. _cd_ into _dockerImages_.
+
+`cd dockerImages`
+
+And then build them
+
+`bash run_all.sh`
+
+Depending on your network connection and the specs of your computer, this will take a very
+long time. On my computer, it takes around 10 minutes and takes up around 3GB on the drive. 
+
+### Running code
+
+First, you have to create a new **execman** instance:
+
+    instance, err := execman.New(execman.Options{
+        Ruby: execman.Ruby{
+            Workers:    10,
+            Containers: 1,
+        },
+        ExecutionDirectory: "/home/user/go/my_package/execution_directory",
+    })
+
+    instance.Close()
+
+**ExecutionDirectory** is the volume directory where the files to run will be placed and
+ran by **docker exec**. It should be writeable. It can be anywhere you want but it is
+best to be close to the application that you are workin on. 
+
+> [!CAUTION]
+> You have to call instance.Close(). This will stop all running containers
+> and workers that make the system that it is. If you don't do this, these
+> containers will still remain running and the volume directories will also
+> not get cleaned up. 
