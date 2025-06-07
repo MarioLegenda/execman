@@ -190,12 +190,14 @@ func New(options Options) (Emulator, error) {
 		createBlueprint(Golang, "go:go_v18", options.GoLang.Workers, options.GoLang.Containers),
 	}
 
+	// perform initial validation
 	for _, c := range containerBlueprints {
 		// default case, user did not specify this language at all
 		if c.WorkerNum == 0 && c.ContainerNum == 0 {
 			continue
 		}
 
+		// error if some options are specified but the system cannot work with those options
 		if c.WorkerNum == 0 && c.ContainerNum != 0 {
 			return Emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("%s cannot have no workers", c.LangName))
 		}
@@ -203,8 +205,10 @@ func New(options Options) (Emulator, error) {
 		if c.WorkerNum != 0 && c.ContainerNum == 0 {
 			return Emulator{}, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("%s cannot have no containers", c.LangName))
 		}
+	}
 
-		fmt.Println("Creating container: ", c.Tag)
+	for _, c := range containerBlueprints {
+		fmt.Printf("Creating containter [%s]\n", c.Tag)
 
 		errs := containerFactory.CreateContainers(options.ExecutionDirectory, c.Tag, c.ContainerNum)
 
@@ -229,6 +233,8 @@ func New(options Options) (Emulator, error) {
 		b.StartWorkers()
 		e.balancers[c.LangName] = b
 	}
+
+	fmt.Println("execman is ready to be used!")
 
 	return e, nil
 }
