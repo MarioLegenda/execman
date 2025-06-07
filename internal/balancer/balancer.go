@@ -1,7 +1,6 @@
 package balancer
 
 import (
-	"fmt"
 	"github.com/MarioLegenda/execman/internal/runners"
 	"math"
 	"sync"
@@ -86,7 +85,6 @@ func (b *Balancer) AddJob(job Job) {
 
 	b.Lock()
 	b.workerControllers[workerIdx]++
-	fmt.Println(b.containers)
 	b.Unlock()
 }
 
