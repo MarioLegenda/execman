@@ -1,9 +1,5 @@
 package execman
 
-import (
-	"os/exec"
-)
-
 func makeBlocks(num int, delimiter int) [][]int {
 	portions := num / delimiter
 	leftover := num % delimiter
@@ -30,21 +26,4 @@ func makeBlocks(num int, delimiter int) [][]int {
 	}
 
 	return blocks
-}
-
-// DEPRECATED
-func FinalCleanup(log bool) {
-	stopAll := exec.Command("docker", "stop", "$(docker ps -a -q)")
-	err := stopAll.Run()
-
-	if err != nil {
-		// TODO: do something with the error
-	}
-
-	rmAll := exec.Command("/bin/bash", []string{"-c", "docker rm -f $(docker ps -a -q)"}...)
-	err = rmAll.Run()
-
-	if err != nil {
-		// TODO: do something with the error
-	}
 }
