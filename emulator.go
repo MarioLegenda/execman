@@ -173,21 +173,21 @@ func New(options Options) (Emulator, error) {
 	}
 
 	containerBlueprints := []ContainerBlueprint{
-		createBlueprint(NodeLatestLang, string(types.NodeLts.Tag), options.NodeLts.Workers, options.NodeLts.Containers),
-		createBlueprint(JuliaLang, string(types.Julia.Tag), options.Julia.Workers, options.Julia.Containers),
-		createBlueprint(NodeEsmLtsLang, string(types.NodeEsm.Tag), options.NodeEsm.Workers, options.NodeEsm.Containers),
-		createBlueprint(RubyLang, string(types.Ruby.Tag), options.Ruby.Workers, options.Ruby.Containers),
-		createBlueprint(RustLang, string(types.Rust.Tag), options.Rust.Workers, options.Rust.Containers),
-		createBlueprint(CPlusPlusLang, string(types.CPlus.Tag), options.CPlus.Workers, options.CPlus.Containers),
-		createBlueprint(HaskellLang, string(types.Haskell.Tag), options.Haskell.Workers, options.Haskell.Containers),
-		createBlueprint(C, string(types.CLang.Tag), options.CLang.Workers, options.CLang.Containers),
-		createBlueprint(PerlLtsLang, string(types.PerlLts.Tag), options.Perl.Workers, options.Perl.Containers),
-		createBlueprint(CSharpLang, string(types.CSharpMono.Tag), options.CSharp.Workers, options.CSharp.Containers),
-		createBlueprint(Python3Lang, string(types.Python3.Tag), options.Python3.Workers, options.Python3.Containers),
-		createBlueprint(LuaLang, string(types.Lua.Tag), options.Lua.Workers, options.Lua.Containers),
-		createBlueprint(Python2Lang, string(types.Python2.Tag), options.Python2.Workers, options.Python2.Containers),
-		createBlueprint(PHPLang, string(types.Php74.Tag), options.Php74.Workers, options.Php74.Containers),
-		createBlueprint(Golang, string(types.GoLang.Tag), options.GoLang.Workers, options.GoLang.Containers),
+		createBlueprint(NodeLatestLang, "node:node_latest", options.NodeLts.Workers, options.NodeLts.Containers),
+		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers),
+		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers),
+		createBlueprint(RubyLang, "ruby:ruby", options.Ruby.Workers, options.Ruby.Containers),
+		createBlueprint(RustLang, "rust:rust", options.Rust.Workers, options.Rust.Containers),
+		createBlueprint(CPlusPlusLang, "c-plus:c-plus", options.CPlus.Workers, options.CPlus.Containers),
+		createBlueprint(HaskellLang, "haskell:haskell", options.Haskell.Workers, options.Haskell.Containers),
+		createBlueprint(C, "c:c", options.CLang.Workers, options.CLang.Containers),
+		createBlueprint(PerlLtsLang, "perl:perl", options.Perl.Workers, options.Perl.Containers),
+		createBlueprint(CSharpLang, "c_sharp_mono:c_sharp_mono", options.CSharp.Workers, options.CSharp.Containers),
+		createBlueprint(Python3Lang, "python:python3", options.Python3.Workers, options.Python3.Containers),
+		createBlueprint(LuaLang, "lua:lua", options.Lua.Workers, options.Lua.Containers),
+		createBlueprint(Python2Lang, "python:python2", options.Python2.Workers, options.Python2.Containers),
+		createBlueprint(PHPLang, "php:php7.4", options.Php74.Workers, options.Php74.Containers),
+		createBlueprint(Golang, "go:go_v18", options.GoLang.Workers, options.GoLang.Containers),
 	}
 
 	for _, c := range containerBlueprints {
