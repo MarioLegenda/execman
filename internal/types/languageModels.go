@@ -32,7 +32,7 @@ var NodeEsm = Language{
 
 var GoLang = Language{
 	Name:      "go",
-	Tag:       "go:go_v18",
+	Tag:       "go:go_latest",
 	Extension: "go",
 }
 

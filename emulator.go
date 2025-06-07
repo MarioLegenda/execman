@@ -188,7 +188,7 @@ func New(options Options) (Emulator, error) {
 		createBlueprint(LuaLang, "lua:lua", options.Lua.Workers, options.Lua.Containers),
 		createBlueprint(Python2Lang, "python:python2", options.Python2.Workers, options.Python2.Containers),
 		createBlueprint(PHP74Lang, "php:php7.4", options.Php74.Workers, options.Php74.Containers),
-		createBlueprint(Golang, "go:go_v18", options.GoLang.Workers, options.GoLang.Containers),
+		createBlueprint(Golang, "go:go_latest", options.GoLang.Workers, options.GoLang.Containers),
 	}
 
 	// perform initial validation
@@ -220,14 +220,14 @@ func New(options Options) (Emulator, error) {
 			errs := containerFactory.CreateContainers(options.ExecutionDirectory, c.Tag, c.ContainerNum)
 
 			if len(errs) != 0 {
-				e.Close()
-
 				combinedLogging := ""
 				for _, err := range errs {
 					combinedLogging += fmt.Sprintf("%s,", err.Error())
 				}
 
 				containerErrors = append(errs, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s: %s", c.Tag, combinedLogging)))
+
+				return
 			}
 
 			containers := containerFactory.Containers(c.Tag)
@@ -252,10 +252,12 @@ func New(options Options) (Emulator, error) {
 
 		// if there are errors with creating some containers, others might
 		// already be created. We call Close() here to stop those containers
+		// and stop all balancers
 		e.Close()
 
 		return e, ContainerCannotBoot
 	}
+
 	fmt.Println("execman is ready to be used!")
 
 	return e, nil
@@ -271,8 +273,10 @@ func (em Emulator) Run(language, content string) Result {
 		}
 	}
 
+	b := em.balancers[string(lang.Name)]
+
 	resultCh := make(chan balancer.Result)
-	em.balancers[string(lang.Name)].AddJob(balancer.Job{
+	b.AddJob(balancer.Job{
 		ExecutionDir:      em.executionDir,
 		BuilderType:       "single_file",
 		ExecutionType:     "single_file",
@@ -292,7 +296,6 @@ func (em Emulator) Run(language, content string) Result {
 }
 
 func (em Emulator) Close() {
-	fmt.Println("Closing containers and balancers!")
 	containerFactory.Close()
 
 	for _, e := range em.balancers {

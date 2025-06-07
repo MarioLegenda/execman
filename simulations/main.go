@@ -3,38 +3,23 @@ package main
 import (
 	"fmt"
 	"github.com/MarioLegenda/execman"
+	"log"
 	"sync"
 	"time"
 )
 
 func main() {
-	emulator, _ := execman.New(execman.Options{
-		CPlus: execman.CPlus{
-			Workers:    1000,
-			Containers: 100,
-		},
-		Haskell: execman.Haskell{
-			Workers:    1000,
-			Containers: 100,
-		},
+	emulator, err := execman.New(execman.Options{
 		GoLang: execman.GoLang{
-			Workers:    1000,
-			Containers: 100,
-		},
-		Perl: execman.Perl{
-			Workers:    1000,
-			Containers: 100,
-		},
-		Lua: execman.Lua{
-			Workers:    1000,
-			Containers: 100,
-		},
-		CSharp: execman.CSharp{
-			Workers:    1000,
-			Containers: 100,
+			Workers:    100,
+			Containers: 10,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
+
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	now := time.Now()
 	wg := sync.WaitGroup{}
@@ -44,13 +29,15 @@ func main() {
 		go func() {
 			defer wg.Done()
 
-			_ = emulator.Run(execman.CPlusPlusLang, `
-#include <iostream>
+			_ = emulator.Run(execman.Golang, `
+package main
 
-int main() {
-    std::cout << "Hello world";
-    return 0;
-}`)
+use "fmt"
+
+func main() {
+	fmt.Println("Hello world")
+}
+`)
 		}()
 	}
 

@@ -2,7 +2,7 @@
 
 dir=$PWD
 
-cd "$dir/go_v18" && /usr/bin/docker image build -t go:go_v18 .
+cd "$dir/go_latest" && /usr/bin/docker image build -t go:go_latest .
 cd "$dir/node_latest" && /usr/bin/docker image build -t node:node_latest .
 cd "$dir/node_latest" && /usr/bin/docker image build -t node:node_latest_esm .
 cd "$dir/python2" && /usr/bin/docker image build -t python:python2 .
