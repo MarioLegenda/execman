@@ -39,6 +39,9 @@ and close it abruptly, those containers will still remain up so keep that in min
 It is also not meant to be used inside a docker container since every container needs its own
 volume in order to execute code with it. 
 
+**execman** does not listen to any signals like SIGTERM or SIGKILL or any other to terminate
+the process. If you have such requirements, you should add them yourself. 
+
 # How to use it
 
 ### Installing docker images
