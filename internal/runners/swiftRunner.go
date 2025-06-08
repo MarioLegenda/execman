@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-type HaskellExecParams struct {
+type SwiftExecParams struct {
 	ContainerName      string
 	ExecutionDirectory string
 	ContainerDirectory string
 	ExecutionFile      string
 }
 
-func haskellRunner(params HaskellExecParams) Result {
+func swiftRunner(params SwiftExecParams) Result {
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
 	defer cancel()
 
@@ -26,7 +26,7 @@ func haskellRunner(params HaskellExecParams) Result {
 	pidC := make(chan int, 1)
 
 	go func() {
-		cmd := exec.Command("docker", []string{"exec", params.ContainerName, "/bin/bash", "-c", fmt.Sprintf("cd %s && ghc %s > output.txt && ./%s > output.txt", params.ContainerDirectory, params.ExecutionFile, params.ExecutionFile[:len(params.ExecutionFile)-3])}...)
+		cmd := exec.Command("docker", []string{"exec", params.ContainerName, "/bin/bash", "-c", fmt.Sprintf("cd %s && swift package init --name /app/%s --type executable >/dev/null 2>&1 && swift run %s", params.ContainerDirectory, params.ContainerDirectory, params.ContainerDirectory)}...)
 		errPipe, err := cmd.StderrPipe()
 
 		if err != nil {
@@ -48,14 +48,14 @@ func haskellRunner(params HaskellExecParams) Result {
 		}
 
 		startErr := cmd.Start()
+		pidC <- cmd.Process.Pid
+
+		a, _ := io.ReadAll(errPipe)
+		b, _ := io.ReadAll(outPipe)
+		errb = string(a)
+		outb = string(b)
+
 		if startErr == nil {
-			pidC <- cmd.Process.Pid
-
-			a, _ := io.ReadAll(errPipe)
-			b, _ := io.ReadAll(outPipe)
-			errb = string(a)
-			outb = string(b)
-
 			waitErr := cmd.Wait()
 
 			if waitErr != nil {
@@ -94,7 +94,7 @@ func haskellRunner(params HaskellExecParams) Result {
 				runResult.Success = true
 			}
 
-			destroyContainerProcess(extractUniqueIdentifier(params.ExecutionFile[:len(params.ExecutionFile)-3], false), true)
+			destroyContainerProcess(extractUniqueIdentifier(params.ContainerDirectory, false), true)
 			destroy(params.ExecutionDirectory)
 			return runResult
 		}
@@ -109,7 +109,7 @@ func haskellRunner(params HaskellExecParams) Result {
 
 		break
 	case <-ctx.Done():
-		destroyContainerProcess(extractUniqueIdentifier(params.ExecutionFile[:len(params.ExecutionFile)-3], false), true)
+		destroyContainerProcess(extractUniqueIdentifier(params.ContainerDirectory, false), true)
 		closeExecSession(<-pidC)
 		destroy(params.ExecutionDirectory)
 		close(pidC)

@@ -89,6 +89,11 @@ type Java struct {
 	Containers int
 }
 
+type Swift struct {
+	Workers    int
+	Containers int
+}
+
 type Lua struct {
 	Workers    int
 	Containers int
@@ -122,6 +127,7 @@ type Options struct {
 	Ruby
 	Rust
 	CPlus
+	Swift
 	Haskell
 	CLang
 	Perl
@@ -168,6 +174,8 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.Php74, nil
 	} else if name == "java" {
 		return types.JavaLts, nil
+	} else if name == "swift" {
+		return types.SwiftLts, nil
 	}
 
 	return types.Language{}, errors.New(fmt.Sprintf("Cannot find language %s", name))
@@ -186,6 +194,7 @@ func New(options Options) (Emulator, error) {
 		// Java is still not ready to be used, something is wrong with the image
 		//createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers),
+		createBlueprint(SwiftLang, "swift:latest", options.Swift.Workers, options.Swift.Containers),
 		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers),
 		createBlueprint(RubyLang, "ruby:ruby", options.Ruby.Workers, options.Ruby.Containers),
 		createBlueprint(RustLang, "rust:rust", options.Rust.Workers, options.Rust.Containers),

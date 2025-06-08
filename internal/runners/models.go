@@ -56,6 +56,10 @@ var java = language{
 	name: "java",
 }
 
+var swift = language{
+	name: "swift",
+}
+
 var csharpMono = language{
 	name: "c_sharp_mono",
 }

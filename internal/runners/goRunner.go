@@ -88,6 +88,12 @@ func goRunner(params GoExecParams) Result {
 				runResult.Error = nil
 			}
 
+			if errb != "" {
+				runResult.Success = false
+			} else {
+				runResult.Success = true
+			}
+
 			destroyContainerProcess(extractUniqueIdentifier(params.ContainerDirectory, false), true)
 			destroy(params.ExecutionDirectory)
 			return runResult

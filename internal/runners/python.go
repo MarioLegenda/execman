@@ -91,6 +91,12 @@ func pythonRunner(params PythonExecParams) Result {
 				runResult.Error = nil
 			}
 
+			if errb != "" {
+				runResult.Success = false
+			} else {
+				runResult.Success = true
+			}
+
 			destroyContainerProcess(extractUniqueIdentifier(process, true), true)
 			destroy(params.ExecutionDirectory)
 			return runResult

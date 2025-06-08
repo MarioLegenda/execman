@@ -3,7 +3,8 @@
 dir=$PWD
 
 cd "$dir/go_latest" && /usr/bin/docker image build -t go:go_latest .
-cd "$dir/java" && /usr/bin/docker image build -t java:java_latest .
+cd "$dir/swift" && /usr/bin/docker image build -t swift:swift_latest .
+# cd "$dir/java" && /usr/bin/docker image build -t java:java_latest .
 cd "$dir/node_latest" && /usr/bin/docker image build -t node:node_latest .
 cd "$dir/node_latest" && /usr/bin/docker image build -t node:node_latest_esm .
 cd "$dir/python2" && /usr/bin/docker image build -t python:python2 .

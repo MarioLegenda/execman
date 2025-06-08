@@ -91,6 +91,12 @@ func perlRunner(params PerlExecParams) Result {
 				runResult.Error = nil
 			}
 
+			if errb != "" {
+				runResult.Success = false
+			} else {
+				runResult.Success = true
+			}
+
 			destroyContainerProcess(extractUniqueIdentifier(params.ExecutionFile, true), false)
 			destroy(params.ExecutionDirectory)
 			return runResult

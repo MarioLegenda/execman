@@ -10,7 +10,7 @@ import (
 
 func singleIterations() {
 	instance, err := execman.New(execman.Options{
-		Java: execman.Java{
+		Swift: execman.Swift{
 			Workers:    10,
 			Containers: 1,
 		},
@@ -30,14 +30,9 @@ func singleIterations() {
 
 		go func() {
 			defer wg.Done()
-			res := instance.Run(execman.JavaLang, `
-public class HelloWorld
-{
-    public static void main(String[] args)
-    {
-        System.out.println("Hello world");
-    }
-}
+			res := instance.Run(execman.SwiftLang, `
+import Foundation
+print("Hello world")
 `)
 			fmt.Println(res)
 			if !res.Success {

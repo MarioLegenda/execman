@@ -72,6 +72,12 @@ var JavaLts = Language{
 	Extension: "java",
 }
 
+var SwiftLts = Language{
+	Name:      "swift",
+	Tag:       "swift:latest",
+	Extension: "swift",
+}
+
 var Rust = Language{
 	Name:      "rust",
 	Tag:       "rust:rust",

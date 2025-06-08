@@ -365,8 +365,8 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(java.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.JavaSingleFileBuild(builders.InitJavaParams(
+	if params.EmulatorName == string(swift.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
+		build, err := builders.SwiftSingleFileBuild(builders.InitSwiftParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -380,7 +380,7 @@ func Run(params Params) Result {
 			}
 		}
 
-		return javaRunner(JavaExecParams{
+		return swiftRunner(SwiftExecParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
