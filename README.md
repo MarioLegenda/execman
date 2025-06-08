@@ -197,6 +197,39 @@ for best results that match your use case.
 As far as memory is concerned, every container, depending on the image that it was created from,
 takes between 30 and 50MB. 
 
+# Available programming languages
+
+In code that I showed you, you might have seen this:
+
+````go
+_ = instance.Run(execman.RubyLang, `puts "Hello world"`)
+````
+
+The `execman.RubyLang` is the constant for the Ruby language. Every programming language
+has a constant associated with it. These are the constants and also the available programming
+languages that you can run as of this moment:
+
+````go
+const Golang = "go"
+const NodeLatestLang = "node_latest"
+const PerlLtsLang = "perl"
+const NodeEsmLtsLang = "node_latest_esm"
+const Python2Lang = "python2"
+const Python3Lang = "python3"
+const LuaLang = "lua"
+const RubyLang = "ruby"
+const PHP74Lang = "php74"
+const RustLang = "rust"
+const HaskellLang = "haskell"
+const C = "c"
+const CPlusPlusLang = "c++"
+const CSharpLang = "c_sharp_mono"
+const JuliaLang = "julia"
+
+// const JavaLang = "java"
+//const SwiftLang = "swift"
+````
+
 # Tests
 
 If you want to run tests on this package, cd into the directory where you cloned the package and
