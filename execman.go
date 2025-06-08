@@ -194,7 +194,8 @@ func New(options Options) (Emulator, error) {
 		// Java is still not ready to be used, something is wrong with the image
 		//createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers),
-		createBlueprint(SwiftLang, "swift:latest", options.Swift.Workers, options.Swift.Containers),
+		// something is wrong with the way build files are built since they can't be deleted by the clenaup process
+		// createBlueprint(SwiftLang, "swift:latest", options.Swift.Workers, options.Swift.Containers),
 		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers),
 		createBlueprint(RubyLang, "ruby:ruby", options.Ruby.Workers, options.Ruby.Containers),
 		createBlueprint(RustLang, "rust:rust", options.Rust.Workers, options.Rust.Containers),

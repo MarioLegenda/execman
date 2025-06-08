@@ -17,4 +17,4 @@ const CSharpLang = "c_sharp_mono"
 const JuliaLang = "julia"
 
 // const JavaLang = "java"
-const SwiftLang = "swift"
+//const SwiftLang = "swift"

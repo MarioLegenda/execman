@@ -10,7 +10,7 @@ import (
 
 func singleIterations() {
 	instance, err := execman.New(execman.Options{
-		Swift: execman.Swift{
+		Ruby: execman.Ruby{
 			Workers:    10,
 			Containers: 1,
 		},
@@ -30,10 +30,7 @@ func singleIterations() {
 
 		go func() {
 			defer wg.Done()
-			res := instance.Run(execman.SwiftLang, `
-import Foundation
-print("Hello world")
-`)
+			res := instance.Run(execman.RubyLang, `puts "Hello world"`)
 			fmt.Println(res)
 			if !res.Success {
 				lock.Lock()

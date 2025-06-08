@@ -26,7 +26,7 @@ func swiftRunner(params SwiftExecParams) Result {
 	pidC := make(chan int, 1)
 
 	go func() {
-		cmd := exec.Command("docker", []string{"exec", params.ContainerName, "/bin/bash", "-c", fmt.Sprintf("cd %s && swift package init --name /app/%s --type executable >/dev/null 2>&1 && swift run %s", params.ContainerDirectory, params.ContainerDirectory, params.ContainerDirectory)}...)
+		cmd := exec.Command("docker", []string{"exec", params.ContainerName, "/bin/bash", "-c", fmt.Sprintf("cd /app/%s && swift package init --name %s --type executable && swift run %s", params.ContainerDirectory, params.ContainerDirectory, params.ContainerDirectory)}...)
 		errPipe, err := cmd.StderrPipe()
 
 		if err != nil {
