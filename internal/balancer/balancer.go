@@ -79,21 +79,18 @@ func New(initialWorkers int, containers []string) *Balancer {
 }
 
 func (b *Balancer) AddJob(job Job) {
+	b.Lock()
 	workerIdx := pickWorker(b)
+	job.ContainerName = pickContainer(b)
+	b.Unlock()
 
 	b.workers[workerIdx] <- job
-
-	b.Lock()
-	b.workerControllers[workerIdx]++
-	b.Unlock()
 }
 
 func (b *Balancer) StartWorkers() {
 	for workerIdx, worker := range b.workers {
 		go func(workerIdx int, worker chan Job) {
 			for {
-				containerName := pickContainer(b)
-
 				select {
 				case <-b.done:
 					close(worker)
@@ -105,7 +102,7 @@ func (b *Balancer) StartWorkers() {
 
 						BuilderType:       job.BuilderType,
 						ExecutionType:     job.ExecutionType,
-						ContainerName:     containerName,
+						ContainerName:     job.ContainerName,
 						EmulatorName:      job.EmulatorName,
 						EmulatorExtension: job.EmulatorExtension,
 						EmulatorText:      job.EmulatorText,
@@ -115,7 +112,7 @@ func (b *Balancer) StartWorkers() {
 
 					b.Lock()
 					b.workerControllers[workerIdx]--
-					b.containers[containerName]--
+					b.containers[job.ContainerName]--
 					b.Unlock()
 
 					job.ResultCh <- Result{
@@ -133,10 +130,9 @@ func (b *Balancer) Close() {
 	close(b.done)
 }
 
+// pick a worker with the least amount of jobs on it
+// this function is executed within a lock in the AddJob() function
 func pickWorker(b *Balancer) int {
-	b.Lock()
-	defer b.Unlock()
-
 	leastJobs := math.MaxInt
 	leastBusyWorkerIdx := -1
 	workers := b.workerControllers
@@ -148,13 +144,13 @@ func pickWorker(b *Balancer) int {
 		}
 	}
 
+	b.workerControllers[leastBusyWorkerIdx]++
 	return leastBusyWorkerIdx
 }
 
+// pick a container with the least amount of jobs on it
+// this function is executed within a lock in the AddJob() function
 func pickContainer(b *Balancer) string {
-	b.Lock()
-	defer b.Unlock()
-
 	leastBusyContainer := math.MaxInt
 	containers := b.containers
 	containerName := ""
