@@ -183,7 +183,8 @@ func New(options Options) (Emulator, error) {
 
 	containerBlueprints := []containerBlueprint{
 		createBlueprint(NodeLatestLang, "node:node_latest", options.NodeLts.Workers, options.NodeLts.Containers),
-		createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers),
+		// Java is still not ready to be used, something is wrong with the image
+		//createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers),
 		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers),
 		createBlueprint(RubyLang, "ruby:ruby", options.Ruby.Workers, options.Ruby.Containers),
