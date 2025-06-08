@@ -84,6 +84,11 @@ type Python3 struct {
 	Containers int
 }
 
+type Java struct {
+	Workers    int
+	Containers int
+}
+
 type Lua struct {
 	Workers    int
 	Containers int
@@ -112,6 +117,7 @@ type Emulator struct {
 type Options struct {
 	NodeLts
 	Julia
+	Java
 	NodeEsm
 	Ruby
 	Rust
@@ -160,6 +166,8 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.Lua, nil
 	} else if name == "php74" {
 		return types.Php74, nil
+	} else if name == "java" {
+		return types.JavaLts, nil
 	}
 
 	return types.Language{}, errors.New(fmt.Sprintf("Cannot find language %s", name))
@@ -175,6 +183,7 @@ func New(options Options) (Emulator, error) {
 
 	containerBlueprints := []containerBlueprint{
 		createBlueprint(NodeLatestLang, "node:node_latest", options.NodeLts.Workers, options.NodeLts.Containers),
+		createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers),
 		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers),
 		createBlueprint(RubyLang, "ruby:ruby", options.Ruby.Workers, options.Ruby.Containers),

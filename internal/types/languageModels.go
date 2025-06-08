@@ -66,6 +66,12 @@ var Php74 = Language{
 	Extension: "php",
 }
 
+var JavaLts = Language{
+	Name:      "java",
+	Tag:       "php:java_latest",
+	Extension: "java",
+}
+
 var Rust = Language{
 	Name:      "rust",
 	Tag:       "rust:rust",

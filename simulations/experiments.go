@@ -10,9 +10,9 @@ import (
 
 func singleIterations() {
 	instance, err := execman.New(execman.Options{
-		Ruby: execman.Ruby{
+		Java: execman.Java{
 			Workers:    10,
-			Containers: 100,
+			Containers: 1,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
@@ -25,13 +25,21 @@ func singleIterations() {
 	wg := sync.WaitGroup{}
 	failed := 0
 	lock := sync.Mutex{}
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 1; i++ {
 		wg.Add(1)
 
 		go func() {
 			defer wg.Done()
-			res := instance.Run(execman.RubyLang, `puts "Hello world"`)
-
+			res := instance.Run(execman.JavaLang, `
+public class HelloWorld
+{
+    public static void main(String[] args)
+    {
+        System.out.println("Hello world");
+    }
+}
+`)
+			fmt.Println(res)
 			if !res.Success {
 				lock.Lock()
 				failed++

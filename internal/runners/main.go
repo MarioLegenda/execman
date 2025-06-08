@@ -365,5 +365,28 @@ func Run(params Params) Result {
 		})
 	}
 
+	if params.EmulatorName == string(java.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
+		build, err := builders.JavaSingleFileBuild(builders.InitJavaParams(
+			params.EmulatorExtension,
+			params.EmulatorText,
+			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
+		))
+
+		if err != nil {
+			return Result{
+				Result:  "",
+				Success: false,
+				Error:   err,
+			}
+		}
+
+		return javaRunner(JavaExecParams{
+			ExecutionDirectory: build.ExecutionDirectory,
+			ContainerDirectory: build.ContainerDirectory,
+			ExecutionFile:      build.FileName,
+			ContainerName:      params.ContainerName,
+		})
+	}
+
 	return Result{}
 }

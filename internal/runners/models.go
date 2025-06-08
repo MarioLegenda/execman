@@ -52,6 +52,10 @@ var julia = language{
 	name: "julia",
 }
 
+var java = language{
+	name: "java",
+}
+
 var csharpMono = language{
 	name: "c_sharp_mono",
 }
