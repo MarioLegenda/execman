@@ -44,6 +44,10 @@ the process. If you have such requirements, you should add them yourself.
 
 # How to use it
 
+## Installation
+
+`go get github.com/MarioLegenda/execman`
+
 ### Installing docker images
 
 First, you need to install the docker images. _cd_ into _dockerImages_.
