@@ -25,7 +25,7 @@ func singleIterations() {
 	wg := sync.WaitGroup{}
 	failed := 0
 	lock := sync.Mutex{}
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 1000; i++ {
 		wg.Add(1)
 
 		go func() {

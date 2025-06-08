@@ -196,3 +196,10 @@ for best results that match your use case.
 
 As far as memory is concerned, every container, depending on the image that it was created from,
 takes between 30 and 50MB. 
+
+# Tests
+
+If you want to run tests on this package, cd into the directory where you cloned the package and
+run:
+
+`go test -race`
