@@ -1,3 +1,17 @@
+# Table of Contents
+
+- [Introduction](#introduction)
+- [Why](#why)
+- [How execman works](#how-execman-works)
+- [What execman isn't](#what-execman-isnt)
+- [How to use it](#how-to-use-it)
+    - [Installation](#installation)
+    - [Installing docker images](#installing-docker-images)
+    - [Running code](#running-code)
+- [About workers and containers](#about-workers-and-containers)
+- [Available programming languages](#available-programming-languages)
+- [Tests](#tests)
+
 # Introduction
 
 **execman** is a tool to execute code in different programming languages (for now, 14
