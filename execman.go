@@ -350,10 +350,6 @@ func initRequiredDirectories(output bool, executionDir string) {
 	}
 }
 
-func watchForSignals() {
-
-}
-
 func createBlueprint(name, tag string, workers, containers int) containerBlueprint {
 	return containerBlueprint{
 		LangName:     name,
