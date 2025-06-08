@@ -11,8 +11,8 @@ import (
 func singleIterations() {
 	instance, err := execman.New(execman.Options{
 		Ruby: execman.Ruby{
-			Workers:    125,
-			Containers: 10,
+			Workers:    10,
+			Containers: 100,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
@@ -23,20 +23,27 @@ func singleIterations() {
 
 	now := time.Now()
 	wg := sync.WaitGroup{}
-	for i := 0; i < 100; i++ {
+	failed := 0
+	lock := sync.Mutex{}
+	for i := 0; i < 10000; i++ {
 		wg.Add(1)
 
 		go func() {
 			defer wg.Done()
 			res := instance.Run(execman.RubyLang, `puts "Hello world"`)
 
-			fmt.Println(res.Success)
+			if !res.Success {
+				lock.Lock()
+				failed++
+				lock.Unlock()
+			}
 		}()
 	}
 
 	wg.Wait()
 
-	fmt.Println(time.Since(now))
+	fmt.Println("Elapsed time: ", time.Since(now))
+	fmt.Println("Number of failed jobs: ", failed)
 
 	instance.Close()
 }

@@ -21,13 +21,13 @@ takes time and memory.
 **execman** creates containers before you run your code and then runs them concurrently with
 **docker exec** command. In front of the containers (you specify the number of containers to run), 
 there is a load balancer with a certain number of workers (which you also specify). Running code
-is load balanced on the created containers and executed with **docker exec**. That means that if users
-send 10 requests in parallel, those requests will be executed in parallel on any number of containers
-that you specify to boot up. 
+is load balanced by least number of jobs on the created containers and executed with **docker exec**. 
+That means that if users send 10 requests in parallel, those requests will be executed in parallel on any number of containers
+that you specify to boot up. Load balancing on containers is also balanced by least amount of jobs.
 
 For example, if you have 10 workers and 1 container for the Ruby language, 10 requests will be executed
 in parallel on this one container in roughly the time that it takes to actually execute them on your own local
-machine without booting up your the container since it is already running.
+machine without booting up your container since it is already running.
 
 # What execman isn't
 
@@ -36,8 +36,8 @@ Use it in a long-running process such as an HTTP server. Also, shutting it down 
 such as with Ctrl+C will not clean up containers that are created so if you start running it
 and close it abruptly, those containers will still remain up so keep that in mind. 
 
-It is also not meant to be used inside a docker container since every container needs its own
-volume in order to execute code with it. 
+It is also **not meant to be used inside a docker container** since every container needs its own
+volume in order to execute code with it.
 
 **execman** does not listen to any signals like SIGTERM or SIGKILL or any other to terminate
 the process. If you have such requirements, you should add them yourself. 
@@ -99,7 +99,7 @@ type Result struct {
 ````
 
 **ExecutionDirectory** is the volume directory where the files to run will be placed and
-ran by **docker exec**. It should be writeable. It can be anywhere you want but it is
+ran by **docker exec**. It should be writeable and readable. It can be anywhere you want, but it is
 best to be close to the application that you are working on. 
 
 > [!CAUTION]
@@ -173,7 +173,26 @@ fn main() {
 
 	instance.Close()
 }
-
 ````
 
+# About workers and containers
 
+Choosing the right number of workers and containers is a delicate process. From my experiments,
+it is best to have around 20 workers per 1 container. You can find the simulations that I did in 
+the `simulations` directory. Success rate of running large amounts of code with it are very good.
+With 10 workers, a single container, you can run 1000 concurrent code runs and they will all succeed
+in around 15 seconds on my computer. 
+
+Also, when I was working on my blogging platform project and this package was part of a microservice that
+executed code and showed it to the user on the frontend, I could use a machine instance with 1 CPU and 
+1GB of memory, and it worked just fine. Granted, I didn't have much traffic but memory was stable since
+I didn't have to boot up a container every time someone tries to run some code on it. 
+
+Another thing to note is that it rarely fails no matter how many jobs I send to it. It might take a long
+time to send 10_000 code runs (or requests, however you want to call it), they will all be a success.
+
+As I said, if you need this project, clone this repository and experiment in the _simulations_ directory
+for best results that match your use case. 
+
+As far as memory is concerned, every container, depending on the image that it was created from,
+takes between 30 and 50MB. 
