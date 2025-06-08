@@ -151,17 +151,16 @@ func pickWorker(b *Balancer) int {
 // pick a container with the least amount of jobs on it
 // this function is executed within a lock in the AddJob() function
 func pickContainer(b *Balancer) string {
-	leastBusyContainer := math.MaxInt
-	containers := b.containers
-	containerName := ""
+	leastBusy := math.MaxInt
+	var selected string
 
-	for name, numOfJobs := range containers {
-		if numOfJobs < leastBusyContainer {
-			containerName = name
+	for name, count := range b.containers {
+		if count < leastBusy {
+			leastBusy = count
+			selected = name
 		}
 	}
 
-	b.containers[containerName]++
-
-	return containerName
+	b.containers[selected]++
+	return selected
 }

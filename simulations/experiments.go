@@ -11,8 +11,8 @@ import (
 func singleIterations() {
 	instance, err := execman.New(execman.Options{
 		Ruby: execman.Ruby{
-			Workers:    200,
-			Containers: 20,
+			Workers:    125,
+			Containers: 10,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
@@ -23,20 +23,21 @@ func singleIterations() {
 
 	now := time.Now()
 	wg := sync.WaitGroup{}
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		wg.Add(1)
 
 		go func() {
 			defer wg.Done()
-			_ = instance.Run(execman.RubyLang, `puts "Hello world"`)
+			res := instance.Run(execman.RubyLang, `puts "Hello world"`)
+
+			fmt.Println(res.Success)
 		}()
 	}
-
-	fmt.Println(time.Since(now))
 
 	wg.Wait()
 
 	fmt.Println(time.Since(now))
+
 	instance.Close()
 }
 
@@ -44,7 +45,7 @@ func averageTime() {
 	instance, err := execman.New(execman.Options{
 		Ruby: execman.Ruby{
 			Workers:    125,
-			Containers: 5,
+			Containers: 10,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
@@ -53,11 +54,12 @@ func averageTime() {
 		log.Fatalln(err)
 	}
 
-	now := time.Now()
 	averages := make([]time.Duration, 0)
 	lock := sync.Mutex{}
 	for a := 0; a < 10; a++ {
 		fmt.Println("Iteration: ", a)
+
+		now := time.Now()
 		wg := sync.WaitGroup{}
 
 		for i := 0; i < 100; i++ {
@@ -74,6 +76,7 @@ func averageTime() {
 
 		wg.Wait()
 	}
+
 	var total time.Duration
 	for _, d := range averages {
 		total += d
