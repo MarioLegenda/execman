@@ -262,6 +262,7 @@ func New(options Options) (Emulator, error) {
 
 			b := balancer.New(c.WorkerNum, containerNames, e.done, watchCh)
 			b.StartWorkers()
+			b.Watch()
 			e.balancers[c.LangName] = b
 		}(c)
 	}

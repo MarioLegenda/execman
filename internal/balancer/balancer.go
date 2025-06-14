@@ -90,8 +90,10 @@ func (b *Balancer) Watch() {
 			default:
 				restartedContainer := <-b.watch
 				b.Lock()
-				delete(b.containers, restartedContainer.Name)
-				b.containers[restartedContainer.Name] = 0
+				if _, ok := b.containers[restartedContainer.OldContainerName]; ok {
+					delete(b.containers, restartedContainer.OldContainerName)
+					b.containers[restartedContainer.Name] = 0
+				}
 				b.Unlock()
 			}
 		}

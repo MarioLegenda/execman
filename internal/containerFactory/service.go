@@ -1,3 +1,4 @@
+// if this package has an error, it HAS to panic because it must succeed
 package containerFactory
 
 import (
@@ -7,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"sync"
-	"time"
 )
 
 type container struct {
@@ -19,8 +19,8 @@ type container struct {
 }
 
 type RestartedContainer struct {
-	Name string
-	Tag  string
+	Name             string
+	OldContainerName string
 }
 
 var containers = make(map[string][]container)
@@ -49,13 +49,8 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 					return
 				}
 
-				select {
-				case <-time.After(5 * time.Second):
-					if !isContainerRunning(newContainer.Name) {
-						errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
-
-						return
-					}
+				if !isContainerRunning(newContainer.Name) {
+					errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
 				}
 			}(&wg)
 		}
@@ -85,6 +80,7 @@ func Close() {
 	containers = make(map[string][]container)
 }
 
+// This code has to work and must panic if it does not
 func WatchContainers(tagName string, done chan interface{}) chan RestartedContainer {
 	watchCh := make(chan RestartedContainer)
 	go func() {
@@ -96,27 +92,36 @@ func WatchContainers(tagName string, done chan interface{}) chan RestartedContai
 				conts := containers[tagName]
 				for _, c := range conts {
 					if !isContainerRunning(c.Name) {
-						fmt.Println("Container is not running. Creating another one")
 						cleanupContainer(c.Name, c.pid, c.dir)
 						errs := make([]error, 0)
 						newContainer := createContainer(c.Tag, executionDirectory, &errs)
 						if len(errs) != 0 {
-							return
+							log := ""
+							for _, e := range errs {
+								log += e.Error()
+							}
+
+							panic(log)
 						}
 
 						watchCh <- RestartedContainer{
-							Name: c.Name,
-							Tag:  c.Tag,
+							Name:             newContainer.Name,
+							OldContainerName: c.Name,
 						}
 
-						select {
-						case <-time.After(5 * time.Second):
-							if !isContainerRunning(newContainer.Name) {
-								errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
-
-								return
+						lock.Lock()
+						newContainers := make([]container, 0)
+						for _, a := range conts {
+							if a.Name != c.Name {
+								newContainers = append(newContainers, a)
 							}
 						}
+
+						containers[tagName] = newContainers
+						containers[tagName] = append(containers[tagName], newContainer)
+						lock.Unlock()
+
+						break
 					}
 				}
 			}

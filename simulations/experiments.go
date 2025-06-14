@@ -47,6 +47,34 @@ func singleIterations() {
 	instance.Close()
 }
 
+func tickerImplementation() {
+	instance, err := execman.New(execman.Options{
+		Ruby: execman.Ruby{
+			Workers:    10,
+			Containers: 10,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	ticker := time.NewTicker(500 * time.Millisecond)
+	elapsedTicker := time.NewTicker(1 * time.Minute)
+	for {
+		select {
+		case <-ticker.C:
+			res := instance.Run(execman.RubyLang, `puts "Hello world"`)
+
+			fmt.Println(res.Error, res.Success)
+		case <-elapsedTicker.C:
+			instance.Close()
+			return
+		}
+	}
+}
+
 func averageTime() {
 	instance, err := execman.New(execman.Options{
 		Ruby: execman.Ruby{

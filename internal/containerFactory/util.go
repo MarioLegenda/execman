@@ -19,7 +19,6 @@ func isContainerRunning(name string) bool {
 	}...)
 
 	out, err := cmd.CombinedOutput()
-
 	if err != nil {
 		return false
 	}
@@ -45,7 +44,7 @@ func stopDockerContainer(containerName string, pid int) {
 	if stopErr == nil {
 		var rmCmd *exec.Cmd
 
-		rmCmd = exec.Command("docker", []string{"rm", "-f", containerName}...)
+		rmCmd = exec.Command("docker", []string{"remove", containerName}...)
 		rmErr := rmCmd.Run()
 
 		if rmErr != nil {
@@ -53,13 +52,13 @@ func stopDockerContainer(containerName string, pid int) {
 			killErr := syscall.Kill(pid, 9)
 
 			if killErr != nil {
-				// TODO: add error handling
+				panic(fmt.Sprintf("Could not stop container %s with PID %d: %s", containerName, pid, killErr.Error()))
 			}
 		}
 	}
 
 	if stopErr != nil {
-		// TODO: add error handling here
+		panic(fmt.Sprintf("Could not stop container %s with PID %d: %s", containerName, pid, stopErr.Error()))
 	}
 }
 
