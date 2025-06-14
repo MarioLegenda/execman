@@ -358,32 +358,3 @@ func TestJuliaLanguage(t *testing.T) {
 
 	em.Close()
 }
-
-func TestJavaLanguage(t *testing.T) {
-	t.Skip("Java is still not operational")
-
-	em, err := New(Options{
-		Java: Java{
-			Workers:    10,
-			Containers: 1,
-		},
-		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
-	})
-	assert.Nil(t, err)
-
-	res := em.Run(JavaLang, `
-public class HelloWorld
-{
-    public static void main(String[] args)
-    {
-        System.out.println("Hello world");
-    }
-}
-`)
-
-	assert.Nil(t, res.Error)
-	assert.True(t, res.Success)
-	assert.Equal(t, res.Result, "Hello world\n")
-
-	em.Close()
-}

@@ -58,7 +58,7 @@ There are 100 workers and 10 containers, a job worker will be picked with the le
 it and the container with the least number of jobs on it. Benchmarking should be done but every container
 should have at least 20 workers before it.
 */
-func New(initialWorkers int, containers []string) *Balancer {
+func New(initialWorkers int, containers []string, containerTag string) *Balancer {
 	balancer := &Balancer{
 		containers:        make(map[string]int),
 		workerControllers: make(map[int]int),
