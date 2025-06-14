@@ -1,6 +1,7 @@
 package balancer
 
 import (
+	"github.com/MarioLegenda/execman/internal/containerFactory"
 	"github.com/MarioLegenda/execman/internal/runners"
 	"math"
 	"sync"
@@ -48,6 +49,8 @@ type Balancer struct {
 	sync.Mutex
 
 	done chan interface{}
+
+	watch chan containerFactory.RestartedContainer
 }
 
 /*
@@ -58,12 +61,13 @@ There are 100 workers and 10 containers, a job worker will be picked with the le
 it and the container with the least number of jobs on it. Benchmarking should be done but every container
 should have at least 20 workers before it.
 */
-func New(initialWorkers int, containers []string, containerTag string, done chan interface{}) *Balancer {
+func New(initialWorkers int, containers []string, done chan interface{}, watchCh chan containerFactory.RestartedContainer) *Balancer {
 	balancer := &Balancer{
 		containers:        make(map[string]int),
 		workerControllers: make(map[int]int),
 		workers:           make([]chan Job, initialWorkers),
 		done:              done,
+		watch:             watchCh,
 	}
 
 	for i := 0; i < initialWorkers; i++ {
@@ -76,6 +80,22 @@ func New(initialWorkers int, containers []string, containerTag string, done chan
 	}
 
 	return balancer
+}
+
+func (b *Balancer) Watch() {
+	go func() {
+		for {
+			select {
+			case <-b.done:
+			default:
+				restartedContainer := <-b.watch
+				b.Lock()
+				delete(b.containers, restartedContainer.Name)
+				b.containers[restartedContainer.Name] = 0
+				b.Unlock()
+			}
+		}
+	}()
 }
 
 func (b *Balancer) AddJob(job Job) {

@@ -91,12 +91,12 @@ func WatchContainers(tagName string, done chan interface{}) chan RestartedContai
 		for {
 			select {
 			case <-done:
-				fmt.Println("watching is done")
 				return
 			default:
 				conts := containers[tagName]
 				for _, c := range conts {
 					if !isContainerRunning(c.Name) {
+						fmt.Println("Container is not running. Creating another one")
 						cleanupContainer(c.Name, c.pid, c.dir)
 						errs := make([]error, 0)
 						newContainer := createContainer(c.Tag, executionDirectory, &errs)
