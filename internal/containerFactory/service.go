@@ -18,6 +18,11 @@ type container struct {
 	Name string
 }
 
+type RestartedContainer struct {
+	Name string
+	Tag  string
+}
+
 var containers = make(map[string][]container)
 var lock sync.Mutex
 var executionDirectory string
@@ -80,31 +85,45 @@ func Close() {
 	containers = make(map[string][]container)
 }
 
-func WatchContainers(tagName string) {
+func WatchContainers(tagName string, done chan interface{}) chan RestartedContainer {
+	watchCh := make(chan RestartedContainer)
 	go func() {
 		for {
-			conts := containers[tagName]
-			for _, c := range conts {
-				if !isContainerRunning(c.Name) {
-					cleanupContainer(c.Name, c.pid, c.dir)
-					errs := make([]error, 0)
-					newContainer := createContainer(c.Tag, executionDirectory, &errs)
-					if len(errs) != 0 {
-						return
-					}
-
-					select {
-					case <-time.After(5 * time.Second):
-						if !isContainerRunning(newContainer.Name) {
-							errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
-
+			select {
+			case <-done:
+				fmt.Println("watching is done")
+				return
+			default:
+				conts := containers[tagName]
+				for _, c := range conts {
+					if !isContainerRunning(c.Name) {
+						cleanupContainer(c.Name, c.pid, c.dir)
+						errs := make([]error, 0)
+						newContainer := createContainer(c.Tag, executionDirectory, &errs)
+						if len(errs) != 0 {
 							return
+						}
+
+						watchCh <- RestartedContainer{
+							Name: c.Name,
+							Tag:  c.Tag,
+						}
+
+						select {
+						case <-time.After(5 * time.Second):
+							if !isContainerRunning(newContainer.Name) {
+								errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
+
+								return
+							}
 						}
 					}
 				}
 			}
 		}
 	}()
+
+	return watchCh
 }
 
 func cleanupContainer(name string, pid int, dir string) {

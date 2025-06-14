@@ -258,8 +258,9 @@ func New(options Options) (Emulator, error) {
 				containerNames[i] = c.Name
 			}
 
+			containerFactory.WatchContainers(c.Tag, e.done)
+
 			b := balancer.New(c.WorkerNum, containerNames, c.Tag, e.done)
-			containerFactory.WatchContainers(c.Tag)
 			b.StartWorkers()
 			e.balancers[c.LangName] = b
 		}(c)
