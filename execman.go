@@ -117,6 +117,7 @@ type GoLang struct {
 type Emulator struct {
 	executionDir string
 	balancers    map[string]*balancer.Balancer
+	done         chan interface{}
 }
 
 type Options struct {
@@ -187,6 +188,7 @@ func New(options Options) (Emulator, error) {
 	e := Emulator{
 		executionDir: options.ExecutionDirectory,
 		balancers:    make(map[string]*balancer.Balancer),
+		done:         make(chan interface{}),
 	}
 
 	containerBlueprints := []containerBlueprint{
@@ -256,7 +258,8 @@ func New(options Options) (Emulator, error) {
 				containerNames[i] = c.Name
 			}
 
-			b := balancer.New(c.WorkerNum, containerNames, c.Tag)
+			b := balancer.New(c.WorkerNum, containerNames, c.Tag, e.done)
+			containerFactory.WatchContainers(c.Tag)
 			b.StartWorkers()
 			e.balancers[c.LangName] = b
 		}(c)
@@ -316,9 +319,7 @@ func (em Emulator) Run(language, content string) Result {
 }
 
 func (em Emulator) Close() {
-	for _, e := range em.balancers {
-		e.Close()
-	}
+	close(em.done)
 
 	containerFactory.Close()
 }

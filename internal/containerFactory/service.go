@@ -20,6 +20,7 @@ type container struct {
 
 var containers = make(map[string][]container)
 var lock sync.Mutex
+var executionDirectory string
 
 func Containers(tagName string) []container {
 	return containers[tagName]
@@ -27,6 +28,7 @@ func Containers(tagName string) []container {
 
 func CreateContainers(executionDir, tag string, containerNum int) []error {
 	blocks := makeBlocks(containerNum, 5)
+	executionDirectory = executionDir
 
 	errs := make([]error, 0)
 	for _, block := range blocks {
@@ -78,21 +80,32 @@ func Close() {
 	containers = make(map[string][]container)
 }
 
-/*func WatchContainers() {
+func WatchContainers(tagName string) {
 	go func() {
 		for {
-			for containerTag, conts := range containers {
-				for _, c := range conts {
-					if !isContainerRunning(c.Name) {
-						cleanupContainer(c.Name, c.pid, c.dir)
+			conts := containers[tagName]
+			for _, c := range conts {
+				if !isContainerRunning(c.Name) {
+					cleanupContainer(c.Name, c.pid, c.dir)
+					errs := make([]error, 0)
+					newContainer := createContainer(c.Tag, executionDirectory, &errs)
+					if len(errs) != 0 {
+						return
+					}
 
-						name := uuid.New().String()
+					select {
+					case <-time.After(5 * time.Second):
+						if !isContainerRunning(newContainer.Name) {
+							errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
+
+							return
+						}
 					}
 				}
 			}
 		}
 	}()
-}*/
+}
 
 func cleanupContainer(name string, pid int, dir string) {
 	stopDockerContainer(name, pid)

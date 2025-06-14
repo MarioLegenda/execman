@@ -47,7 +47,7 @@ type Balancer struct {
 	// the access to containers and workerControllers members
 	sync.Mutex
 
-	done chan struct{}
+	done chan interface{}
 }
 
 /*
@@ -58,12 +58,12 @@ There are 100 workers and 10 containers, a job worker will be picked with the le
 it and the container with the least number of jobs on it. Benchmarking should be done but every container
 should have at least 20 workers before it.
 */
-func New(initialWorkers int, containers []string, containerTag string) *Balancer {
+func New(initialWorkers int, containers []string, containerTag string, done chan interface{}) *Balancer {
 	balancer := &Balancer{
 		containers:        make(map[string]int),
 		workerControllers: make(map[int]int),
 		workers:           make([]chan Job, initialWorkers),
-		done:              make(chan struct{}),
+		done:              done,
 	}
 
 	for i := 0; i < initialWorkers; i++ {
@@ -124,10 +124,6 @@ func (b *Balancer) StartWorkers() {
 			}
 		}(workerIdx, worker)
 	}
-}
-
-func (b *Balancer) Close() {
-	close(b.done)
 }
 
 // pick a worker with the least amount of jobs on it
