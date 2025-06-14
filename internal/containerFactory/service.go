@@ -1,4 +1,6 @@
 // if this package has an error, it HAS to panic because it must succeed
+
+// TODO: make this package into a single struct
 package containerFactory
 
 import (
@@ -23,36 +25,41 @@ type RestartedContainer struct {
 	OldContainerName string
 }
 
+// holds containers under a specific tag name of the language
+// that the user has selected to run
 var containers = make(map[string][]container)
+
+// holds all locks of this package
 var lock sync.Mutex
+
+// holds the execution directory in which container
+// volumes reside
 var executionDirectory string
 
+// returns all containers by tag name, for example, rust:rust
 func Containers(tagName string) []container {
 	return containers[tagName]
 }
 
+// Runs a goroutine per containerNum and creates a container with the specified tag
 func CreateContainers(executionDir, tag string, containerNum int) {
-	blocks := makeBlocks(containerNum, 5)
 	executionDirectory = executionDir
 
-	for _, block := range blocks {
-		wg := sync.WaitGroup{}
+	wg := sync.WaitGroup{}
+	wg.Add(containerNum)
+	for i := 0; i < containerNum; i++ {
+		go func() {
+			defer wg.Done()
 
-		for range block {
-			wg.Add(1)
-			go func(wg *sync.WaitGroup) {
-				defer wg.Done()
+			newContainer := createContainer(tag, executionDir)
 
-				newContainer := createContainer(tag, executionDir)
-
-				if !isContainerRunning(newContainer.Name) {
-					panic(fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
-				}
-			}(&wg)
-		}
-
-		wg.Wait()
+			if !isContainerRunning(newContainer.Name) {
+				panic(fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
+			}
+		}()
 	}
+
+	wg.Wait()
 }
 
 func Close() {
@@ -85,6 +92,7 @@ func WatchContainers(tagName string, done chan interface{}) chan RestartedContai
 			default:
 				conts := containers[tagName]
 				for _, c := range conts {
+					// if the container is not running (not in running state), we must create another one
 					if !isContainerRunning(c.Name) {
 						cleanupContainer(c.Name, c.pid, c.dir)
 						errs := make([]error, 0)
@@ -98,12 +106,14 @@ func WatchContainers(tagName string, done chan interface{}) chan RestartedContai
 							panic(log)
 						}
 
+						// a balancer is listening on watchCh and updates its containers list
 						watchCh <- RestartedContainer{
 							Name:             newContainer.Name,
 							OldContainerName: c.Name,
 						}
 
 						lock.Lock()
+						// remove the old container and put the new one in
 						newContainers := make([]container, 0)
 						for _, a := range conts {
 							if a.Name != c.Name {
@@ -174,6 +184,7 @@ func executeContainer(containerName, containerTag, executionDir string) (int, er
 func createContainer(tag, executionDir string) container {
 	name := uuid.New().String()
 
+	// containerDir is within executionDir that the user gives
 	containerDir := fmt.Sprintf("%s/%s", executionDir, name)
 	fsErr := os.Mkdir(containerDir, os.ModePerm)
 

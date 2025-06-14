@@ -54,7 +54,6 @@ type Balancer struct {
 }
 
 /*
-*
 In general, the balancer should balance trough workers jobs to containers. For example:
 
 There are 100 workers and 10 containers, a job worker will be picked with the least number of jobs on

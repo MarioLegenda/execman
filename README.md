@@ -209,7 +209,7 @@ As I said, if you need this project, clone this repository and experiment in the
 for best results that match your use case. 
 
 As far as memory is concerned, every container, depending on the image that it was created from,
-takes between 30 and 50MB. 
+takes between 30 and 50MB.
 
 # Available programming languages
 

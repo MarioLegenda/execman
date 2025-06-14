@@ -52,7 +52,7 @@ func stopDockerContainer(containerName string, pid int) {
 			killErr := syscall.Kill(pid, 9)
 
 			if killErr != nil {
-				panic(fmt.Sprintf("Could not stop container %s with PID %d: %s", containerName, pid, killErr.Error()))
+				panic(fmt.Sprintf("Could not kill container %s with PID %d: %s", containerName, pid, killErr.Error()))
 			}
 		}
 	}

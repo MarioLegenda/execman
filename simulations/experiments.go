@@ -50,7 +50,7 @@ func singleIterations() {
 func tickerImplementation() {
 	instance, err := execman.New(execman.Options{
 		Ruby: execman.Ruby{
-			Workers:    10,
+			Workers:    1000,
 			Containers: 10,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
@@ -65,9 +65,32 @@ func tickerImplementation() {
 	for {
 		select {
 		case <-ticker.C:
-			res := instance.Run(execman.RubyLang, `puts "Hello world"`)
+			wg := sync.WaitGroup{}
+			failed := make([]execman.Result, 0)
+			lock := sync.Mutex{}
+			for i := 0; i < 10; i++ {
+				wg.Add(1)
 
-			fmt.Println(res.Error, res.Success)
+				go func() {
+					defer wg.Done()
+					res := instance.Run(execman.RubyLang, `puts "Hello world"`)
+					if !res.Success {
+						lock.Lock()
+						failed = append(failed, res)
+						lock.Unlock()
+					}
+				}()
+			}
+
+			wg.Wait()
+
+			fmt.Println("Failed jobs: ", len(failed))
+			if len(failed) != 0 {
+				for _, f := range failed {
+					fmt.Println(f)
+				}
+			}
+
 		case <-elapsedTicker.C:
 			instance.Close()
 			return

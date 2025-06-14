@@ -2,6 +2,7 @@ package runners
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os/exec"
@@ -86,9 +87,16 @@ func juliaRunner(params JuliaExecParams) Result {
 		if res == "error" {
 			out := makeRunDecision(errb, outb, params.ExecutionDirectory)
 			if out != "" {
-				runResult.Success = true
 				runResult.Result = out
 				runResult.Error = nil
+			}
+
+			if errb != "" {
+				runResult.Success = false
+				runResult.Error = errors.New(out)
+				runResult.Result = ""
+			} else {
+				runResult.Success = true
 			}
 
 			destroyContainerProcess(extractUniqueIdentifier(process, true), true)
