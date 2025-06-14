@@ -31,11 +31,10 @@ func Containers(tagName string) []container {
 	return containers[tagName]
 }
 
-func CreateContainers(executionDir, tag string, containerNum int) []error {
+func CreateContainers(executionDir, tag string, containerNum int) {
 	blocks := makeBlocks(containerNum, 5)
 	executionDirectory = executionDir
 
-	errs := make([]error, 0)
 	for _, block := range blocks {
 		wg := sync.WaitGroup{}
 
@@ -44,21 +43,16 @@ func CreateContainers(executionDir, tag string, containerNum int) []error {
 			go func(wg *sync.WaitGroup) {
 				defer wg.Done()
 
-				newContainer := createContainer(tag, executionDir, &errs)
-				if len(errs) != 0 {
-					return
-				}
+				newContainer := createContainer(tag, executionDir)
 
 				if !isContainerRunning(newContainer.Name) {
-					errs = append(errs, fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
+					panic(fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
 				}
 			}(&wg)
 		}
 
 		wg.Wait()
 	}
-
-	return errs
 }
 
 func Close() {
@@ -94,7 +88,7 @@ func WatchContainers(tagName string, done chan interface{}) chan RestartedContai
 					if !isContainerRunning(c.Name) {
 						cleanupContainer(c.Name, c.pid, c.dir)
 						errs := make([]error, 0)
-						newContainer := createContainer(c.Tag, executionDirectory, &errs)
+						newContainer := createContainer(c.Tag, executionDirectory)
 						if len(errs) != 0 {
 							log := ""
 							for _, e := range errs {
@@ -177,14 +171,14 @@ func executeContainer(containerName, containerTag, executionDir string) (int, er
 	return cmd.Process.Pid, nil
 }
 
-func createContainer(tag, executionDir string, errs *[]error) container {
+func createContainer(tag, executionDir string) container {
 	name := uuid.New().String()
 
 	containerDir := fmt.Sprintf("%s/%s", executionDir, name)
 	fsErr := os.Mkdir(containerDir, os.ModePerm)
 
 	if fsErr != nil {
-		*errs = append(*errs, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", fsErr.Error())))
+		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", fsErr.Error())))
 
 		return container{}
 	}
@@ -214,7 +208,7 @@ func createContainer(tag, executionDir string, errs *[]error) container {
 	lock.Unlock()
 
 	if err != nil {
-		*errs = append(*errs, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", err.Error())))
+		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", err.Error())))
 
 		return container{}
 	}

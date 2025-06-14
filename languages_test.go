@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-func TestErrorsWithContainersAndWorkers(t *testing.T) {
-	em, err := New(Options{
+func TestErrorsWithContainers(t *testing.T) {
+	_, err := New(Options{
 		Ruby: Ruby{
 			Workers:    0,
 			Containers: 1,
@@ -16,8 +16,10 @@ func TestErrorsWithContainersAndWorkers(t *testing.T) {
 	})
 	assert.NotNil(t, err)
 	assert.True(t, errors.Is(err, InvalidOptions))
+}
 
-	em, err = New(Options{
+func TestErrorsWithWorkers(t *testing.T) {
+	_, err := New(Options{
 		Ruby: Ruby{
 			Workers:    10,
 			Containers: 0,
@@ -26,8 +28,6 @@ func TestErrorsWithContainersAndWorkers(t *testing.T) {
 	})
 	assert.NotNil(t, err)
 	assert.True(t, errors.Is(err, InvalidOptions))
-
-	em.Close()
 }
 
 func TestRubyLanguage(t *testing.T) {

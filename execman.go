@@ -239,18 +239,7 @@ func New(options Options) (Emulator, error) {
 
 			fmt.Printf("Creating containters for [%s]\n", c.Tag)
 
-			errs := containerFactory.CreateContainers(options.ExecutionDirectory, c.Tag, c.ContainerNum)
-
-			if len(errs) != 0 {
-				combinedLogging := ""
-				for _, err := range errs {
-					combinedLogging += fmt.Sprintf("%s,", err.Error())
-				}
-
-				containerErrors = append(errs, fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Cannot boot container for tag %s: %s", c.Tag, combinedLogging)))
-
-				return
-			}
+			containerFactory.CreateContainers(options.ExecutionDirectory, c.Tag, c.ContainerNum)
 
 			containers := containerFactory.Containers(c.Tag)
 			containerNames := make([]string, len(containers))
