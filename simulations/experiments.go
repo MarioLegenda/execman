@@ -22,7 +22,6 @@ func regularExecution() {
 	}
 
 	res := instance.Run(execman.JavaLang, `
-// Simple Java Hello World Program
 class HelloWorld
 {
     public static void main(String[] args)
@@ -37,11 +36,11 @@ class HelloWorld
 	instance.Close()
 }
 
-func singleIterations() {
+func manyIterations() {
 	instance, err := execman.New(execman.Options{
-		Ruby: execman.Ruby{
-			Workers:    10,
-			Containers: 10,
+		Java: execman.Java{
+			Workers:    200,
+			Containers: 100,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
@@ -54,12 +53,21 @@ func singleIterations() {
 	wg := sync.WaitGroup{}
 	failed := 0
 	lock := sync.Mutex{}
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 		wg.Add(1)
 
 		go func() {
 			defer wg.Done()
-			res := instance.Run(execman.RubyLang, `puts "Hello world"`)
+			res := instance.Run(execman.JavaLang, `
+class HelloWorld
+{
+    public static void main(String[] args)
+    {
+        System.out.println("Hello, World");
+    }
+}
+`)
+			fmt.Println(res)
 			if !res.Success {
 				lock.Lock()
 				failed++

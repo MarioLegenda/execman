@@ -16,7 +16,7 @@ type JavaExecParams struct {
 }
 
 func javaRunner(params JavaExecParams) Result {
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(35*time.Second))
 	defer cancel()
 
 	var outb, errb string
