@@ -167,6 +167,12 @@ func (c *ContainerFactory) createContainer(tag string) container {
 		Name: name,
 	}
 
+	if err != nil {
+		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", err.Error())))
+
+		return container{}
+	}
+
 	// we update the containers array right away
 	// so if something goes wrong, the close mechanism
 	// can clenaup the system from the bad container
@@ -182,12 +188,6 @@ func (c *ContainerFactory) createContainer(tag string) container {
 
 	c.containers[tag] = append(c.containers[tag], newContainer)
 	c.Unlock()
-
-	if err != nil {
-		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", err.Error())))
-
-		return container{}
-	}
 
 	return newContainer
 }

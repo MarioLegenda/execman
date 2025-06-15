@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestErrorsWithContainers(t *testing.T) {
@@ -81,6 +82,33 @@ func TestRubyLanguage(t *testing.T) {
 	assert.Nil(t, res.Error)
 	assert.True(t, res.Success)
 	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+}
+
+func TestInfiniteLoopTimeout(t *testing.T) {
+	em, err := New(Options{
+		Ruby: Ruby{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	start := time.Now()
+	res := em.Run(RubyLang, `
+while true
+end
+`)
+	assert.NotNil(t, res.Error)
+	assert.False(t, res.Success)
+	assert.Equal(t, res.Result, "")
+	assert.Equal(t, res.Error.Error(), "code execution timed out")
+
+	duration := time.Since(start)
+
+	assert.GreaterOrEqual(t, duration.Seconds(), 5.0, "timeout too long")
 
 	em.Close()
 }
@@ -391,6 +419,33 @@ func TestJuliaLanguage(t *testing.T) {
 	assert.Nil(t, res.Error)
 	assert.True(t, res.Success)
 	assert.Equal(t, res.Result, "Hello world")
+
+	em.Close()
+}
+
+func TestJavaLanguage(t *testing.T) {
+	em, err := New(Options{
+		Java: Java{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(JavaLang, `
+class HelloWorld
+{
+    public static void main(String[] args)
+    {
+        System.out.println("Hello world");
+    }
+}
+`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
 
 	em.Close()
 }

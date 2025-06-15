@@ -9,6 +9,8 @@
     - [Installing docker images](#installing-docker-images)
     - [Running code](#running-code)
 - [About workers and containers](#about-workers-and-containers)
+- [Container healing](#container-healing)
+- [Timeouts](#timeouts)
 - [Available programming languages](#available-programming-languages)
 - [Tests](#tests)
 
@@ -217,6 +219,12 @@ If a container goes from a _running_ state to some other states, the system will
 and create another one in its place. For example, let's say that you created 10 containers and one of them fails. The system
 will pick that up and replace that with another container without the user even knowing that something bad happened.
 
+# Timeouts
+
+If the code does not finish in 5 seconds, it times out. This is to protect the container from
+an infinite loop which would render the container useless since code will just keep coming
+but old code would not finish. 
+
 # Available programming languages
 
 In code that I showed you, you might have seen this:
@@ -245,6 +253,7 @@ const C = "c"
 const CPlusPlusLang = "c++"
 const CSharpLang = "c_sharp_mono"
 const JuliaLang = "julia"
+const JavaLang = "java"
 ````
 
 # Tests

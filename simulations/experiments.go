@@ -8,6 +8,35 @@ import (
 	"time"
 )
 
+func regularExecution() {
+	instance, err := execman.New(execman.Options{
+		Java: execman.Java{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	res := instance.Run(execman.JavaLang, `
+// Simple Java Hello World Program
+class HelloWorld
+{
+    public static void main(String[] args)
+    {
+        System.out.println("Hello, World");
+    }
+}
+`)
+
+	fmt.Println(res)
+
+	instance.Close()
+}
+
 func singleIterations() {
 	instance, err := execman.New(execman.Options{
 		Ruby: execman.Ruby{
@@ -79,6 +108,56 @@ func tickerImplementation() {
 			return
 		}
 	}
+}
+
+func timeoutImplementation() {
+	instance, err := execman.New(execman.Options{
+		Ruby: execman.Ruby{
+			Workers:    100,
+			Containers: 10,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	wg := sync.WaitGroup{}
+	iterationNum := 100
+	wg.Add(iterationNum)
+	for i := 0; i < iterationNum; i++ {
+		go func() {
+			defer wg.Done()
+			_ = instance.Run(execman.RubyLang, `
+while true
+end
+`)
+		}()
+	}
+	wg.Wait()
+
+	wg = sync.WaitGroup{}
+	lock := sync.Mutex{}
+	iterationNum = 100
+	wg.Add(iterationNum)
+	failed := 0
+	for i := 0; i < iterationNum; i++ {
+		go func() {
+			defer wg.Done()
+			res := instance.Run(execman.RubyLang, `puts "Hello world"`)
+
+			lock.Lock()
+			if !res.Success {
+				failed++
+			}
+			lock.Unlock()
+		}()
+	}
+	wg.Wait()
+
+	fmt.Println("Failed jobs because of timeouts: ", failed)
+
 }
 
 func averageTime() {

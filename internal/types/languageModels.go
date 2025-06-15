@@ -68,7 +68,7 @@ var Php74 = Language{
 
 var JavaLts = Language{
 	Name:      "java",
-	Tag:       "php:java_latest",
+	Tag:       "java:java_latest",
 	Extension: "java",
 }
 
@@ -112,4 +112,10 @@ var Julia = Language{
 	Name:      "julia",
 	Tag:       "julia:julia",
 	Extension: "jl",
+}
+
+var KotlinLts = Language{
+	Name:      "kotlin",
+	Tag:       "kotlin:kotlin",
+	Extension: "kt",
 }

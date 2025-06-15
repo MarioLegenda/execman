@@ -34,6 +34,11 @@ type NodeLts struct {
 	Containers int
 }
 
+type KotlinLts struct {
+	Workers    int
+	Containers int
+}
+
 type Julia struct {
 	Workers    int
 	Containers int
@@ -178,6 +183,8 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.JavaLts, nil
 	} else if name == "swift" {
 		return types.SwiftLts, nil
+	} else if name == "kotlin" {
+		return types.KotlinLts, nil
 	}
 
 	return types.Language{}, errors.New(fmt.Sprintf("Cannot find language %s", name))
@@ -195,8 +202,9 @@ func New(options Options) (Emulator, error) {
 
 	containerBlueprints := []containerBlueprint{
 		createBlueprint(NodeLatestLang, "node:node_latest", options.NodeLts.Workers, options.NodeLts.Containers),
+		//createBlueprint(KotlinLang, "kotlin:kotlin", options.KotlinLts.Workers, options.KotlinLts.Containers),
 		// Java is still not ready to be used, something is wrong with the image
-		//createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers),
+		createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers),
 		// something is wrong with the way build files are built since they can't be deleted by the clenaup process
 		// createBlueprint(SwiftLang, "swift:latest", options.Swift.Workers, options.Swift.Containers),

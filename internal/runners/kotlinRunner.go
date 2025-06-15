@@ -2,20 +2,21 @@ package runners
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os/exec"
 	"time"
 )
 
-type JavaExecParams struct {
+type KotlinExecParams struct {
 	ContainerName      string
 	ExecutionDirectory string
 	ContainerDirectory string
 	ExecutionFile      string
 }
 
-func javaRunner(params JavaExecParams) Result {
+func kotlinRunner(params KotlinExecParams) Result {
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
 	defer cancel()
 
@@ -26,11 +27,7 @@ func javaRunner(params JavaExecParams) Result {
 	pidC := make(chan int, 1)
 
 	go func() {
-		// TODO: /bin/sh does not want to cd into any directory but ls works fine. /app directory is also there.
-		// Everything should work but /bin/sh won't cd into directory. If I enter the container directly,
-		// everything works fine and everything is where it should be. Multiple images tried, not just amazon
-		cmd := exec.Command("docker", []string{"exec", params.ContainerName, "/bin/sh", "-c", fmt.Sprintf("cd /app/%s && javac %s && java %s", params.ContainerDirectory, params.ExecutionFile, params.ExecutionFile)}...)
-
+		cmd := exec.Command("docker", []string{"exec", params.ContainerName, "/bin/sh", "-c", fmt.Sprintf("cd %s && kotlinc /app/%s && kotlinc %s", params.ContainerDirectory, params.ExecutionFile, params.ExecutionFile)}...)
 		errPipe, err := cmd.StderrPipe()
 
 		if err != nil {
@@ -93,6 +90,8 @@ func javaRunner(params JavaExecParams) Result {
 
 			if errb != "" {
 				runResult.Success = false
+				runResult.Error = errors.New(out)
+				runResult.Result = ""
 			} else {
 				runResult.Success = true
 			}

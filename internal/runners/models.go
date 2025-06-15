@@ -60,6 +60,10 @@ var swift = language{
 	name: "swift",
 }
 
+var kotlin = language{
+	name: "kotlin",
+}
+
 var csharpMono = language{
 	name: "c_sharp_mono",
 }
