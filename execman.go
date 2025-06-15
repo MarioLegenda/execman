@@ -16,6 +16,7 @@ type containerBlueprint struct {
 	WorkerNum    int
 	ContainerNum int
 	Tag          string
+	Timeout      int
 }
 
 type Result struct {
@@ -27,96 +28,115 @@ type Result struct {
 type Option struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type NodeLts struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type KotlinLts struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Julia struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type NodeEsm struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Ruby struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Rust struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type CPlus struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Haskell struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type CLang struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Perl struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type CSharp struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Python3 struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Java struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Swift struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Lua struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Python2 struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Php74 struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type GoLang struct {
 	Workers    int
 	Containers int
+	Timeout    int
 }
 
 type Emulator struct {
@@ -201,26 +221,25 @@ func New(options Options) (Emulator, error) {
 	}
 
 	containerBlueprints := []containerBlueprint{
-		createBlueprint(NodeLatestLang, "node:node_latest", options.NodeLts.Workers, options.NodeLts.Containers),
+		createBlueprint(NodeLatestLang, "node:node_latest", options.NodeLts.Workers, options.NodeLts.Containers, options.NodeLts.Timeout),
 		//createBlueprint(KotlinLang, "kotlin:kotlin", options.KotlinLts.Workers, options.KotlinLts.Containers),
-		// Java is still not ready to be used, something is wrong with the image
-		createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers),
-		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers),
+		createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers, options.Java.Timeout),
+		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers, options.Julia.Timeout),
 		// something is wrong with the way build files are built since they can't be deleted by the clenaup process
 		// createBlueprint(SwiftLang, "swift:latest", options.Swift.Workers, options.Swift.Containers),
-		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers),
-		createBlueprint(RubyLang, "ruby:ruby", options.Ruby.Workers, options.Ruby.Containers),
-		createBlueprint(RustLang, "rust:rust", options.Rust.Workers, options.Rust.Containers),
-		createBlueprint(CPlusPlusLang, "c-plus:c-plus", options.CPlus.Workers, options.CPlus.Containers),
-		createBlueprint(HaskellLang, "haskell:haskell", options.Haskell.Workers, options.Haskell.Containers),
-		createBlueprint(C, "c:c", options.CLang.Workers, options.CLang.Containers),
-		createBlueprint(PerlLtsLang, "perl:perl", options.Perl.Workers, options.Perl.Containers),
-		createBlueprint(CSharpLang, "c_sharp_mono:c_sharp_mono", options.CSharp.Workers, options.CSharp.Containers),
-		createBlueprint(Python3Lang, "python:python3", options.Python3.Workers, options.Python3.Containers),
-		createBlueprint(LuaLang, "lua:lua", options.Lua.Workers, options.Lua.Containers),
-		createBlueprint(Python2Lang, "python:python2", options.Python2.Workers, options.Python2.Containers),
-		createBlueprint(PHP74Lang, "php:php7.4", options.Php74.Workers, options.Php74.Containers),
-		createBlueprint(Golang, "go:go_latest", options.GoLang.Workers, options.GoLang.Containers),
+		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers, options.NodeEsm.Timeout),
+		createBlueprint(RubyLang, "ruby:ruby", options.Ruby.Workers, options.Ruby.Containers, options.Ruby.Timeout),
+		createBlueprint(RustLang, "rust:rust", options.Rust.Workers, options.Rust.Containers, options.Rust.Timeout),
+		createBlueprint(CPlusPlusLang, "c-plus:c-plus", options.CPlus.Workers, options.CPlus.Containers, options.CPlus.Timeout),
+		createBlueprint(HaskellLang, "haskell:haskell", options.Haskell.Workers, options.Haskell.Containers, options.Haskell.Timeout),
+		createBlueprint(C, "c:c", options.CLang.Workers, options.CLang.Containers, options.CLang.Timeout),
+		createBlueprint(PerlLtsLang, "perl:perl", options.Perl.Workers, options.Perl.Containers, options.Perl.Timeout),
+		createBlueprint(CSharpLang, "c_sharp_mono:c_sharp_mono", options.CSharp.Workers, options.CSharp.Containers, options.CSharp.Timeout),
+		createBlueprint(Python3Lang, "python:python3", options.Python3.Workers, options.Python3.Containers, options.Python3.Timeout),
+		createBlueprint(LuaLang, "lua:lua", options.Lua.Workers, options.Lua.Containers, options.Lua.Timeout),
+		createBlueprint(Python2Lang, "python:python2", options.Python2.Workers, options.Python2.Containers, options.Python2.Timeout),
+		createBlueprint(PHP74Lang, "php:php7.4", options.Php74.Workers, options.Php74.Containers, options.Php74.Timeout),
+		createBlueprint(Golang, "go:go_latest", options.GoLang.Workers, options.GoLang.Containers, options.GoLang.Timeout),
 	}
 
 	// perform initial validation
@@ -259,7 +278,7 @@ func New(options Options) (Emulator, error) {
 
 			watchCh := e.cf.Watch(c.Tag, e.done)
 
-			b := balancer.New(c.WorkerNum, containerNames, e.done, watchCh)
+			b := balancer.New(c.WorkerNum, containerNames, e.done, watchCh, c.Timeout)
 			b.StartWorkers()
 			b.Watch()
 			e.balancers[c.LangName] = b
@@ -372,11 +391,16 @@ func initRequiredDirectories(output bool, executionDir string) {
 	}
 }
 
-func createBlueprint(name, tag string, workers, containers int) containerBlueprint {
+func createBlueprint(name, tag string, workers, containers, timeout int) containerBlueprint {
+	if timeout == 0 {
+		timeout = 5
+	}
+
 	return containerBlueprint{
 		LangName:     name,
 		WorkerNum:    workers,
 		ContainerNum: containers,
 		Tag:          tag,
+		Timeout:      timeout,
 	}
 }

@@ -221,9 +221,86 @@ will pick that up and replace that with another container without the user even 
 
 # Timeouts
 
-If the code does not finish in 5 seconds, it times out. This is to protect the container from
-an infinite loop which would render the container useless since code will just keep coming
-but old code would not finish. 
+The default timeout for any code execution is 5 seconds, but you can specify your own timeout. 
+
+````go
+_, err := execman.New(execman.Options{
+    Ruby: execman.Ruby{
+        Workers:    10,
+        Containers: 1,
+		Timeout: 10,
+    },
+    ExecutionDirectory: "/home/user/go/my_package/execution_directory",
+})
+````
+
+This is very useful for compiled languages like Java for which it takes awhile to compile
+and run the code. For example, this code with the default timeout will error out with a timeout:
+
+````go
+package main
+
+import (
+  "fmt"
+  "github.com/MarioLegenda/execman"
+  "sync"
+  "time"
+)
+
+func main() {
+  instance, err := execman.New(execman.Options{
+    Java: execman.Java{
+      Workers:    200,
+      Containers: 100,
+      Timeout:    50,
+    },
+    ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+  })
+
+  if err != nil {
+    log.Fatalln(err)
+  }
+
+  now := time.Now()
+  wg := sync.WaitGroup{}
+  failed := 0
+  lock := sync.Mutex{}
+  for i := 0; i < 100; i++ {
+    wg.Add(1)
+
+    go func() {
+      defer wg.Done()
+      res := instance.Run(execman.JavaLang, `
+class HelloWorld
+{
+    public static void main(String[] args)
+    {
+        System.out.println("Hello, World");
+    }
+}
+`)
+      fmt.Println(res)
+      if !res.Success {
+        lock.Lock()
+        failed++
+        lock.Unlock()
+      }
+    }()
+  }
+
+  wg.Wait()
+
+  fmt.Println("Elapsed time: ", time.Since(now))
+  fmt.Println("Number of failed jobs: ", failed)
+
+  instance.Close()
+}
+````
+
+This code is sending 100 code execution requests concurrently and with the default timeout, it
+will all timeout since executing a single snippet of Java, it takes around a second (on my computer).
+Only if I put a timeout value at around 35 seconds, some code gets executed successfully. This is
+something you have to keep tweaking around compiled languages. 
 
 # Available programming languages
 

@@ -11,6 +11,8 @@ type Params struct {
 	BuilderType   string
 	ExecutionType string
 
+	Timeout int
+
 	ContainerName string
 
 	EmulatorName      string
@@ -40,6 +42,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -86,6 +89,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -109,6 +113,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -132,6 +137,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -155,6 +161,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -178,6 +185,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -201,6 +209,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -224,6 +233,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -247,6 +257,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -270,6 +281,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -293,6 +305,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -316,6 +329,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -339,6 +353,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -362,6 +377,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -385,6 +401,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -408,6 +425,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 
@@ -431,6 +449,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 

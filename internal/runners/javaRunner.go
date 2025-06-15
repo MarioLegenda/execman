@@ -13,10 +13,11 @@ type JavaExecParams struct {
 	ExecutionDirectory string
 	ContainerDirectory string
 	ExecutionFile      string
+	Timeout            int
 }
 
 func javaRunner(params JavaExecParams) Result {
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(35*time.Second))
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Duration(params.Timeout)*time.Second))
 	defer cancel()
 
 	var outb, errb string

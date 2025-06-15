@@ -14,10 +14,11 @@ type CExecParams struct {
 	ExecutionDirectory string
 	ContainerDirectory string
 	ExecutionFile      string
+	Timeout            int
 }
 
 func cRunner(params CExecParams) Result {
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Duration(params.Timeout)*time.Second))
 	defer cancel()
 
 	var outb, errb string

@@ -11,8 +11,9 @@ import (
 func regularExecution() {
 	instance, err := execman.New(execman.Options{
 		Java: execman.Java{
-			Workers:    10,
-			Containers: 1,
+			Workers:    200,
+			Containers: 100,
+			Timeout:    5,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
@@ -21,6 +22,7 @@ func regularExecution() {
 		log.Fatalln(err)
 	}
 
+	start := time.Now()
 	res := instance.Run(execman.JavaLang, `
 class HelloWorld
 {
@@ -31,7 +33,9 @@ class HelloWorld
 }
 `)
 
+	since := time.Since(start)
 	fmt.Println(res)
+	fmt.Println("Executed in: ", since)
 
 	instance.Close()
 }
@@ -41,6 +45,7 @@ func manyIterations() {
 		Java: execman.Java{
 			Workers:    200,
 			Containers: 100,
+			Timeout:    50,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})

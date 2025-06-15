@@ -18,6 +18,7 @@ type Job struct {
 
 	BuilderType   string
 	ExecutionType string
+	Timeout       int
 
 	ContainerName string
 
@@ -51,6 +52,8 @@ type Balancer struct {
 	done chan interface{}
 
 	watch chan containerFactory.RestartedContainer
+
+	timeout int
 }
 
 /*
@@ -60,13 +63,20 @@ There are 100 workers and 10 containers, a job worker will be picked with the le
 it and the container with the least number of jobs on it. Benchmarking should be done but every container
 should have at least 20 workers before it.
 */
-func New(initialWorkers int, containers []string, done chan interface{}, watchCh chan containerFactory.RestartedContainer) *Balancer {
+func New(
+	initialWorkers int,
+	containers []string,
+	done chan interface{},
+	watchCh chan containerFactory.RestartedContainer,
+	timeout int,
+) *Balancer {
 	balancer := &Balancer{
 		containers:        make(map[string]int),
 		workerControllers: make(map[int]int),
 		workers:           make([]chan Job, initialWorkers),
 		done:              done,
 		watch:             watchCh,
+		timeout:           timeout,
 	}
 
 	for i := 0; i < initialWorkers; i++ {
@@ -120,6 +130,8 @@ func (b *Balancer) StartWorkers() {
 					// result of the job run
 					res := runners.Run(runners.Params{
 						ExecutionDir: job.ExecutionDir,
+
+						Timeout: b.timeout,
 
 						BuilderType:       job.BuilderType,
 						ExecutionType:     job.ExecutionType,
