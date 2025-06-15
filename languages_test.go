@@ -30,6 +30,42 @@ func TestErrorsWithWorkers(t *testing.T) {
 	assert.True(t, errors.Is(err, InvalidOptions))
 }
 
+func TestMultipleExecmans(t *testing.T) {
+	em, err := New(Options{
+		Ruby: Ruby{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(RubyLang, `puts "Hello world"`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+
+	em, err = New(Options{
+		Ruby: Ruby{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res = em.Run(RubyLang, `puts "Hello world"`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+}
+
 func TestRubyLanguage(t *testing.T) {
 	em, err := New(Options{
 		Ruby: Ruby{

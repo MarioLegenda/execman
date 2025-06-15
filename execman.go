@@ -118,6 +118,7 @@ type Emulator struct {
 	executionDir string
 	balancers    map[string]*balancer.Balancer
 	done         chan interface{}
+	cf           *containerFactory.ContainerFactory
 }
 
 type Options struct {
@@ -189,6 +190,7 @@ func New(options Options) (Emulator, error) {
 		executionDir: options.ExecutionDirectory,
 		balancers:    make(map[string]*balancer.Balancer),
 		done:         make(chan interface{}),
+		cf:           containerFactory.New(options.ExecutionDirectory),
 	}
 
 	containerBlueprints := []containerBlueprint{
@@ -239,15 +241,15 @@ func New(options Options) (Emulator, error) {
 
 			fmt.Printf("Creating containters for [%s]\n", c.Tag)
 
-			containerFactory.CreateContainers(options.ExecutionDirectory, c.Tag, c.ContainerNum)
+			e.cf.CreateContainers(c.Tag, c.ContainerNum)
 
-			containers := containerFactory.Containers(c.Tag)
+			containers := e.cf.Containers(c.Tag)
 			containerNames := make([]string, len(containers))
 			for i, c := range containers {
 				containerNames[i] = c.Name
 			}
 
-			watchCh := containerFactory.WatchContainers(c.Tag, e.done)
+			watchCh := e.cf.Watch(c.Tag, e.done)
 
 			b := balancer.New(c.WorkerNum, containerNames, e.done, watchCh)
 			b.StartWorkers()
@@ -312,7 +314,7 @@ func (em Emulator) Run(language, content string) Result {
 func (em Emulator) Close() {
 	close(em.done)
 
-	containerFactory.Close()
+	em.cf.Close()
 }
 
 func initRequiredDirectories(output bool, executionDir string) {

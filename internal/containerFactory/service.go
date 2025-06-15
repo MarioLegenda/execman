@@ -25,33 +25,33 @@ type RestartedContainer struct {
 	OldContainerName string
 }
 
-// holds containers under a specific tag name of the language
-// that the user has selected to run
-var containers = make(map[string][]container)
-
-// holds all locks of this package
-var lock sync.Mutex
-
-// holds the execution directory in which container
-// volumes reside
-var executionDirectory string
-
-// returns all containers by tag name, for example, rust:rust
-func Containers(tagName string) []container {
-	return containers[tagName]
+type ContainerFactory struct {
+	// holds all locks of this package
+	sync.Mutex
+	// holds the execution directory in which container
+	// volumes reside
+	executionDirectory string
+	// holds containers under a specific tag name of the language
+	// that the user has selected to run
+	containers map[string][]container
 }
 
-// Runs a goroutine per containerNum and creates a container with the specified tag
-func CreateContainers(executionDir, tag string, containerNum int) {
-	executionDirectory = executionDir
+func New(executionDirectory string) *ContainerFactory {
+	return &ContainerFactory{
+		Mutex:              sync.Mutex{},
+		executionDirectory: executionDirectory,
+		containers:         make(map[string][]container),
+	}
+}
 
+func (c *ContainerFactory) CreateContainers(tag string, containerNum int) {
 	wg := sync.WaitGroup{}
 	wg.Add(containerNum)
 	for i := 0; i < containerNum; i++ {
 		go func() {
 			defer wg.Done()
 
-			newContainer := createContainer(tag, executionDir)
+			newContainer := c.createContainer(tag)
 
 			if !isContainerRunning(newContainer.Name) {
 				panic(fmt.Errorf("%w: %s", ContainerStartupTimeout, fmt.Sprintf("Container startup timeout: Tag: %s, Name: %s", newContainer.Tag, newContainer.Name)))
@@ -62,11 +62,12 @@ func CreateContainers(executionDir, tag string, containerNum int) {
 	wg.Wait()
 }
 
-func Close() {
-	lock.Lock()
-	contArr := containersToSlice(containers)
-	lock.Unlock()
+func (c *ContainerFactory) Close() {
+	c.Lock()
+	contArr := containersToSlice(c.containers)
+	c.Unlock()
 
+	// stop all docker containers and clean up volume directories
 	wg := sync.WaitGroup{}
 	wg.Add(len(contArr))
 	for _, entry := range contArr {
@@ -79,15 +80,20 @@ func Close() {
 	wg.Wait()
 
 	// remove the entire execution directory since it is recreated on every start of execman
-	err := os.RemoveAll(executionDirectory)
+	err := os.RemoveAll(c.executionDirectory)
 	if err != nil {
-		panic(fmt.Sprintf("Cannot remove execution directory %s. You will have to remove in manutally.", executionDirectory))
+		panic(fmt.Sprintf("Cannot remove execution directory %s. You will have to remove in manutally.", c.executionDirectory))
 	}
-	containers = make(map[string][]container)
+
+	c.containers = make(map[string][]container)
+}
+
+func (c *ContainerFactory) Containers(tagName string) []container {
+	return c.containers[tagName]
 }
 
 // This code has to work and must panic if it does not
-func WatchContainers(tagName string, done chan interface{}) chan RestartedContainer {
+func (c *ContainerFactory) Watch(tagName string, done chan interface{}) chan RestartedContainer {
 	watchCh := make(chan RestartedContainer)
 	go func() {
 		for {
@@ -95,13 +101,13 @@ func WatchContainers(tagName string, done chan interface{}) chan RestartedContai
 			case <-done:
 				return
 			default:
-				conts := containers[tagName]
-				for _, c := range conts {
+				conts := c.containers[tagName]
+				for _, cont := range conts {
 					// if the container is not running (not in running state), we must create another one
-					if !isContainerRunning(c.Name) {
-						cleanupContainer(c.Name, c.pid, c.dir)
+					if !isContainerRunning(cont.Name) {
+						cleanupContainer(cont.Name, cont.pid, cont.dir)
 						errs := make([]error, 0)
-						newContainer := createContainer(c.Tag, executionDirectory)
+						newContainer := c.createContainer(cont.Tag)
 						if len(errs) != 0 {
 							log := ""
 							for _, e := range errs {
@@ -114,21 +120,21 @@ func WatchContainers(tagName string, done chan interface{}) chan RestartedContai
 						// a balancer is listening on watchCh and updates its containers list
 						watchCh <- RestartedContainer{
 							Name:             newContainer.Name,
-							OldContainerName: c.Name,
+							OldContainerName: cont.Name,
 						}
 
-						lock.Lock()
+						c.Lock()
 						// remove the old container and put the new one in
 						newContainers := make([]container, 0)
 						for _, a := range conts {
-							if a.Name != c.Name {
+							if a.Name != cont.Name {
 								newContainers = append(newContainers, a)
 							}
 						}
 
-						containers[tagName] = newContainers
-						containers[tagName] = append(containers[tagName], newContainer)
-						lock.Unlock()
+						c.containers[tagName] = newContainers
+						c.containers[tagName] = append(c.containers[tagName], newContainer)
+						c.Unlock()
 
 						break
 					}
@@ -140,14 +146,58 @@ func WatchContainers(tagName string, done chan interface{}) chan RestartedContai
 	return watchCh
 }
 
+func (c *ContainerFactory) createContainer(tag string) container {
+	name := uuid.New().String()
+
+	// containerDir is within executionDir that the user gives
+	containerDir := fmt.Sprintf("%s/%s", c.executionDirectory, name)
+	fsErr := os.Mkdir(containerDir, os.ModePerm)
+
+	if fsErr != nil {
+		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", fsErr.Error())))
+
+		return container{}
+	}
+
+	pid, err := executeContainer(name, tag, c.executionDirectory)
+	newContainer := container{
+		pid:  pid,
+		dir:  containerDir,
+		Tag:  tag,
+		Name: name,
+	}
+
+	// we update the containers array right away
+	// so if something goes wrong, the close mechanism
+	// can clenaup the system from the bad container
+
+	// NOTE: A container might be up but in a not "running" state.
+	// That is why we need to put it into the containers array.
+	// It is also important for the cleanup since volume directories
+	// are created and need to be removed in case of any error
+	c.Lock()
+	if _, ok := c.containers[tag]; !ok {
+		c.containers[tag] = make([]container, 0)
+	}
+
+	c.containers[tag] = append(c.containers[tag], newContainer)
+	c.Unlock()
+
+	if err != nil {
+		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", err.Error())))
+
+		return container{}
+	}
+
+	return newContainer
+}
+
 func cleanupContainer(name string, pid int, dir string) {
 	stopDockerContainer(name, pid)
 
-	fmt.Println("Removing directory: ", dir)
 	err := os.RemoveAll(dir)
 
 	if err != nil {
-		fmt.Println("Error removing directory: ", dir)
 		cmd := exec.Command("rm", []string{"-rf", dir}...)
 
 		err := cmd.Run()
@@ -186,50 +236,4 @@ func executeContainer(containerName, containerTag, executionDir string) (int, er
 	}
 
 	return cmd.Process.Pid, nil
-}
-
-func createContainer(tag, executionDir string) container {
-	name := uuid.New().String()
-
-	// containerDir is within executionDir that the user gives
-	containerDir := fmt.Sprintf("%s/%s", executionDir, name)
-	fsErr := os.Mkdir(containerDir, os.ModePerm)
-
-	if fsErr != nil {
-		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", fsErr.Error())))
-
-		return container{}
-	}
-
-	pid, err := executeContainer(name, tag, executionDir)
-	newContainer := container{
-		pid:  pid,
-		dir:  containerDir,
-		Tag:  tag,
-		Name: name,
-	}
-
-	// we update the containers array right away
-	// so if something goes wrong, the close mechanism
-	// can clenaup the system from the bad container
-
-	// NOTE: A container might be up but in a not "running" state.
-	// That is why we need to put it into the containers array.
-	// It is also important for the cleanup since volume directories
-	// are created and need to be removed in case of any error
-	lock.Lock()
-	if _, ok := containers[tag]; !ok {
-		containers[tag] = make([]container, 0)
-	}
-
-	containers[tag] = append(containers[tag], newContainer)
-	lock.Unlock()
-
-	if err != nil {
-		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", err.Error())))
-
-		return container{}
-	}
-
-	return newContainer
 }
