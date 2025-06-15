@@ -66,6 +66,7 @@ func Run(params Params) Result {
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
 		})
 	}
 

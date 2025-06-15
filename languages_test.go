@@ -231,6 +231,7 @@ func TestGoLanguage(t *testing.T) {
 		GoLang: GoLang{
 			Workers:    10,
 			Containers: 1,
+			Timeout:    20,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
 	})
