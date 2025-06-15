@@ -16,8 +16,7 @@
 
 # Introduction
 
-**execman** is a tool to execute code in different programming languages (for now, 14
-different programming languages). It came from my abandoned project; a blogging platform
+**execman** is a tool to execute code in different programming languages. It came from my abandoned project; a blogging platform
 specifically designed for software developers where developers could write blogs with
 code snippets that could be executed on the backend and for the result to be shown on
 the frontend. The project didn't go anywhere but the microservice that I created to execute
