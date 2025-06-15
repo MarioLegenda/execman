@@ -211,6 +211,12 @@ for best results that match your use case.
 As far as memory is concerned, every container, depending on the image that it was created from,
 takes between 30 and 50MB.
 
+# Container healing
+
+If a container goes from a _running_ state to some other states, the system will clean it up (stop it and remove it)
+and create another one in its place. For example, let's say that you created 10 containers and one of them fails. The system
+will pick that up and replace that with another container without the user even knowing that something bad happened.
+
 # Available programming languages
 
 In code that I showed you, you might have seen this:

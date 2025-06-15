@@ -68,9 +68,8 @@ func Close() {
 	lock.Unlock()
 
 	wg := sync.WaitGroup{}
+	wg.Add(len(contArr))
 	for _, entry := range contArr {
-		wg.Add(1)
-
 		go func(c container, wg *sync.WaitGroup) {
 			defer wg.Done()
 			cleanupContainer(c.Name, c.pid, c.dir)
@@ -78,6 +77,12 @@ func Close() {
 	}
 
 	wg.Wait()
+
+	// remove the entire execution directory since it is recreated on every start of execman
+	err := os.RemoveAll(executionDirectory)
+	if err != nil {
+		panic(fmt.Sprintf("Cannot remove execution directory %s. You will have to remove in manutally.", executionDirectory))
+	}
 	containers = make(map[string][]container)
 }
 
@@ -138,15 +143,17 @@ func WatchContainers(tagName string, done chan interface{}) chan RestartedContai
 func cleanupContainer(name string, pid int, dir string) {
 	stopDockerContainer(name, pid)
 
+	fmt.Println("Removing directory: ", dir)
 	err := os.RemoveAll(dir)
 
 	if err != nil {
+		fmt.Println("Error removing directory: ", dir)
 		cmd := exec.Command("rm", []string{"-rf", dir}...)
 
 		err := cmd.Run()
 
 		if err != nil {
-			fmt.Printf("Filesystem error: Cannot remove directory %s: %v. You will have to remove in manually\n", dir, err)
+			panic(fmt.Sprintf("Filesystem error: Cannot remove directory %s: %v. You will have to remove in manually\n", dir, err))
 			return
 		}
 	}
