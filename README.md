@@ -239,9 +239,6 @@ const C = "c"
 const CPlusPlusLang = "c++"
 const CSharpLang = "c_sharp_mono"
 const JuliaLang = "julia"
-
-// const JavaLang = "java"
-//const SwiftLang = "swift"
 ````
 
 # Tests
