@@ -28,7 +28,7 @@ func kotlinRunner(params KotlinExecParams) Result {
 	pidC := make(chan int, 1)
 
 	go func() {
-		cmd := exec.Command("docker", []string{"exec", params.ContainerName, "/bin/sh", "-c", fmt.Sprintf("cd %s && kotlinc /app/%s && kotlinc %s", params.ContainerDirectory, params.ExecutionFile, params.ExecutionFile)}...)
+		cmd := exec.Command("docker", []string{"exec", params.ContainerName, "/bin/sh", "-c", fmt.Sprintf("cd %s && kotlinc %s -include-runtime -d %s.jar && java -jar %s.jar", params.ContainerDirectory, params.ExecutionFile, params.ContainerDirectory, params.ContainerDirectory)}...)
 		errPipe, err := cmd.StderrPipe()
 
 		if err != nil {

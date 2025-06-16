@@ -10,9 +10,9 @@ import (
 
 func regularExecution() {
 	instance, err := execman.New(execman.Options{
-		Java: execman.Java{
+		Kotlin: execman.Kotlin{
 			Workers:    200,
-			Containers: 100,
+			Containers: 10,
 			Timeout:    5,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
@@ -23,13 +23,9 @@ func regularExecution() {
 	}
 
 	start := time.Now()
-	res := instance.Run(execman.JavaLang, `
-class HelloWorld
-{
-    public static void main(String[] args)
-    {
-        System.out.println("Hello, World");
-    }
+	res := instance.Run(execman.KotlinLang, `
+fun main() {
+    println("Hello, World!")
 }
 `)
 

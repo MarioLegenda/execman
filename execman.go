@@ -121,6 +121,12 @@ type Lua struct {
 	Timeout    int
 }
 
+type Kotlin struct {
+	Workers    int
+	Containers int
+	Timeout    int
+}
+
 type Python2 struct {
 	Workers    int
 	Containers int
@@ -159,6 +165,7 @@ type Options struct {
 	CLang
 	Perl
 	CSharp
+	Kotlin
 	Python3
 	Lua
 	Python2
@@ -222,9 +229,9 @@ func New(options Options) (Emulator, error) {
 
 	containerBlueprints := []containerBlueprint{
 		createBlueprint(NodeLatestLang, "node:node_latest", options.NodeLts.Workers, options.NodeLts.Containers, options.NodeLts.Timeout),
-		//createBlueprint(KotlinLang, "kotlin:kotlin", options.KotlinLts.Workers, options.KotlinLts.Containers),
 		createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers, options.Java.Timeout),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers, options.Julia.Timeout),
+		createBlueprint(KotlinLang, "kotlin:kotlin", options.Kotlin.Workers, options.Kotlin.Containers, options.Kotlin.Timeout),
 		// something is wrong with the way build files are built since they can't be deleted by the clenaup process
 		// createBlueprint(SwiftLang, "swift:latest", options.Swift.Workers, options.Swift.Containers),
 		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers, options.NodeEsm.Timeout),

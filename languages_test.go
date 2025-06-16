@@ -450,3 +450,27 @@ class HelloWorld
 
 	em.Close()
 }
+
+func TestKotlinLanguage(t *testing.T) {
+	em, err := New(Options{
+		Kotlin: Kotlin{
+			Workers:    10,
+			Containers: 1,
+			Timeout:    20,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(KotlinLang, `
+fun main() {
+    println("Hello world")
+}
+`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+}
