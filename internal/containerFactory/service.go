@@ -155,8 +155,6 @@ func (c *ContainerFactory) createContainer(tag string) container {
 
 	if fsErr != nil {
 		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", fsErr.Error())))
-
-		return container{}
 	}
 
 	pid, err := executeContainer(name, tag, c.executionDirectory)
@@ -169,8 +167,6 @@ func (c *ContainerFactory) createContainer(tag string) container {
 
 	if err != nil {
 		panic(fmt.Errorf("%w: %s", ContainerCannotBoot, fmt.Sprintf("Could not start container: %s", err.Error())))
-
-		return container{}
 	}
 
 	// we update the containers array right away
@@ -204,7 +200,6 @@ func cleanupContainer(name string, pid int, dir string) {
 
 		if err != nil {
 			panic(fmt.Sprintf("Filesystem error: Cannot remove directory %s: %v. You will have to remove in manually\n", dir, err))
-			return
 		}
 	}
 }
