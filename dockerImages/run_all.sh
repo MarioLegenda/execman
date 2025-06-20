@@ -5,6 +5,7 @@ dir=$PWD
 cd "$dir/go_latest" && /usr/bin/docker image build -t go:go_latest .
 # cd "$dir/swift" && /usr/bin/docker image build -t swift:swift_latest .
 cd "$dir/kotlin" && /usr/bin/docker image build -t kotlin:kotlin .
+cd "$dir/zig" && /usr/bin/docker image build -t zig:zig .
 cd "$dir/java" && /usr/bin/docker image build -t java:java_latest .
 cd "$dir/node_latest" && /usr/bin/docker image build -t node:node_latest .
 cd "$dir/node_latest" && /usr/bin/docker image build -t node:node_latest_esm .

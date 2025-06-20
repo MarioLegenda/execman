@@ -139,6 +139,12 @@ type Php74 struct {
 	Timeout    int
 }
 
+type Zig struct {
+	Workers    int
+	Containers int
+	Timeout    int
+}
+
 type GoLang struct {
 	Workers    int
 	Containers int
@@ -162,6 +168,7 @@ type Options struct {
 	CPlus
 	Swift
 	Haskell
+	Zig
 	CLang
 	Perl
 	CSharp
@@ -212,6 +219,8 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.SwiftLts, nil
 	} else if name == "kotlin" {
 		return types.KotlinLts, nil
+	} else if name == "zig" {
+		return types.ZigLts, nil
 	}
 
 	return types.Language{}, errors.New(fmt.Sprintf("Cannot find language %s", name))
@@ -232,6 +241,7 @@ func New(options Options) (Emulator, error) {
 		createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers, options.Java.Timeout),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers, options.Julia.Timeout),
 		createBlueprint(KotlinLang, "kotlin:kotlin", options.Kotlin.Workers, options.Kotlin.Containers, options.Kotlin.Timeout),
+		createBlueprint(ZigLang, "zig:zig", options.Zig.Workers, options.Zig.Containers, options.Zig.Timeout),
 		// something is wrong with the way build files are built since they can't be deleted by the clenaup process
 		// createBlueprint(SwiftLang, "swift:latest", options.Swift.Workers, options.Swift.Containers),
 		createBlueprint(NodeEsmLtsLang, "node:node_latest_esm", options.NodeEsm.Workers, options.NodeEsm.Containers, options.NodeEsm.Timeout),

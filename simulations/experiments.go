@@ -10,9 +10,9 @@ import (
 
 func regularExecution() {
 	instance, err := execman.New(execman.Options{
-		Kotlin: execman.Kotlin{
+		Zig: execman.Zig{
 			Workers:    200,
-			Containers: 10,
+			Containers: 1,
 			Timeout:    5,
 		},
 		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
@@ -23,9 +23,11 @@ func regularExecution() {
 	}
 
 	start := time.Now()
-	res := instance.Run(execman.KotlinLang, `
-fun main() {
-    println("Hello, World!")
+	res := instance.Run(execman.ZigLang, `
+const std = @import("std");
+
+pub fn main() !void {
+    std.debug.print("Hello, World!\n", .{});
 }
 `)
 

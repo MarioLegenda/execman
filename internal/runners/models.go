@@ -16,6 +16,10 @@ var nodeLts = language{
 	name: "node_latest",
 }
 
+var zigLts = language{
+	name: "zig",
+}
+
 var perlLts = language{
 	name: "perl",
 }

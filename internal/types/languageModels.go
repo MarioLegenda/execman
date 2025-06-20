@@ -119,3 +119,9 @@ var KotlinLts = Language{
 	Tag:       "kotlin:kotlin",
 	Extension: "kt",
 }
+
+var ZigLts = Language{
+	Name:      "zig",
+	Tag:       "zig:zig",
+	Extension: "zig",
+}

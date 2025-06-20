@@ -454,5 +454,29 @@ func Run(params Params) Result {
 		})
 	}
 
+	if params.EmulatorName == string(zigLts.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
+		build, err := builders.ZigSingleFileBuild(builders.InitZigParams(
+			params.EmulatorExtension,
+			params.EmulatorText,
+			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
+		))
+
+		if err != nil {
+			return Result{
+				Result:  "",
+				Success: false,
+				Error:   err,
+			}
+		}
+
+		return zigRunner(ZigExecParams{
+			ExecutionDirectory: build.ExecutionDirectory,
+			ContainerDirectory: build.ContainerDirectory,
+			ExecutionFile:      build.FileName,
+			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
+		})
+	}
+
 	return Result{}
 }

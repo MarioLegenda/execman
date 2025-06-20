@@ -474,3 +474,29 @@ fun main() {
 
 	em.Close()
 }
+
+func TestZigLanguage(t *testing.T) {
+	em, err := New(Options{
+		Zig: Zig{
+			Workers:    10,
+			Containers: 1,
+			Timeout:    20,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(ZigLang, `
+const std = @import("std");
+
+pub fn main() !void {
+    std.debug.print("Hello world\n", .{});
+}
+`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+}
