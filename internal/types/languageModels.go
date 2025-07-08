@@ -125,3 +125,9 @@ var ZigLts = Language{
 	Tag:       "zig:zig",
 	Extension: "zig",
 }
+
+var Bash = Language{
+	Name:      "bash",
+	Tag:       "bash:bash",
+	Extension: "sh",
+}

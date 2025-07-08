@@ -500,3 +500,26 @@ pub fn main() !void {
 
 	em.Close()
 }
+
+func TestBashLanguage(t *testing.T) {
+	em, err := New(Options{
+		Bash: Bash{
+			Workers:    10,
+			Containers: 1,
+			Timeout:    20,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(BashLang, `
+#!/bin/bash
+echo "Hello world"
+`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+}

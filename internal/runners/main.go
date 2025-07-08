@@ -475,5 +475,29 @@ func Run(params Params) Result {
 		})
 	}
 
+	if params.EmulatorName == string(bash.name) {
+		build, err := builders.Build(builders.InitBuildParams(
+			params.EmulatorExtension,
+			params.EmulatorText,
+			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
+		))
+
+		if err != nil {
+			return Result{
+				Result:  "",
+				Success: false,
+				Error:   err,
+			}
+		}
+
+		return bashRunner(BashExecParams{
+			ExecutionDirectory: build.ExecutionDirectory,
+			ContainerDirectory: build.ContainerDirectory,
+			ExecutionFile:      build.FileName,
+			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
+		})
+	}
+
 	return Result{}
 }

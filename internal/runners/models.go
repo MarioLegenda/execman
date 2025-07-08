@@ -20,6 +20,10 @@ var zigLts = language{
 	name: "zig",
 }
 
+var bash = language{
+	name: "bash",
+}
+
 var perlLts = language{
 	name: "perl",
 }

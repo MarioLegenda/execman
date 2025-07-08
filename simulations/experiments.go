@@ -10,7 +10,7 @@ import (
 
 func regularExecution() {
 	instance, err := execman.New(execman.Options{
-		Ruby: execman.Ruby{
+		Bash: execman.Bash{
 			Workers:    200,
 			Containers: 1,
 			Timeout:    5,
@@ -23,7 +23,10 @@ func regularExecution() {
 	}
 
 	start := time.Now()
-	res := instance.Run(execman.RubyLang, `puts "Hello world"`)
+	res := instance.Run(execman.BashLang, `
+#!/bin/bash
+echo "Hello World"
+`)
 
 	since := time.Since(start)
 	fmt.Println(res)

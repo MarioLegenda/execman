@@ -43,6 +43,12 @@ type KotlinLts struct {
 	Timeout    int
 }
 
+type Bash struct {
+	Workers    int
+	Containers int
+	Timeout    int
+}
+
 type Julia struct {
 	Workers    int
 	Containers int
@@ -169,6 +175,7 @@ type Options struct {
 	Swift
 	Haskell
 	Zig
+	Bash
 	CLang
 	Perl
 	CSharp
@@ -221,6 +228,8 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.KotlinLts, nil
 	} else if name == "zig" {
 		return types.ZigLts, nil
+	} else if name == "bash" {
+		return types.Bash, nil
 	}
 
 	return types.Language{}, errors.New(fmt.Sprintf("Cannot find language %s", name))
@@ -241,6 +250,7 @@ func New(options Options) (Emulator, error) {
 		createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers, options.Java.Timeout),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers, options.Julia.Timeout),
 		createBlueprint(KotlinLang, "kotlin:kotlin", options.Kotlin.Workers, options.Kotlin.Containers, options.Kotlin.Timeout),
+		createBlueprint(BashLang, "bash:bash", options.Bash.Workers, options.Bash.Containers, options.Bash.Timeout),
 		createBlueprint(ZigLang, "zig:zig", options.Zig.Workers, options.Zig.Containers, options.Zig.Timeout),
 		// something is wrong with the way build files are built since they can't be deleted by the clenaup process
 		// createBlueprint(SwiftLang, "swift:latest", options.Swift.Workers, options.Swift.Containers),

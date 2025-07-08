@@ -3,6 +3,7 @@
 dir=$PWD
 
 cd "$dir/go_latest" && /usr/bin/docker image build -t go:go_latest .
+cd "$dir/bash" && /usr/bin/docker image build -t bash:bash .
 # cd "$dir/swift" && /usr/bin/docker image build -t swift:swift_latest .
 cd "$dir/kotlin" && /usr/bin/docker image build -t kotlin:kotlin .
 cd "$dir/zig" && /usr/bin/docker image build -t zig:zig .

@@ -1,0 +1,5 @@
+FROM bash:4.4
+
+ENV APP_DIR /app
+
+WORKDIR $APP_DIR
