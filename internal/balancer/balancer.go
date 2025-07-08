@@ -16,9 +16,7 @@ type Result struct {
 type Job struct {
 	ExecutionDir string
 
-	BuilderType   string
-	ExecutionType string
-	Timeout       int
+	Timeout int
 
 	ContainerName string
 
@@ -133,8 +131,6 @@ func (b *Balancer) StartWorkers() {
 
 						Timeout: b.timeout,
 
-						BuilderType:       job.BuilderType,
-						ExecutionType:     job.ExecutionType,
 						ContainerName:     job.ContainerName,
 						EmulatorName:      job.EmulatorName,
 						EmulatorExtension: job.EmulatorExtension,

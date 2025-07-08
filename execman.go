@@ -338,8 +338,6 @@ func (em Emulator) Run(language, content string) Result {
 	resultCh := make(chan balancer.Result)
 	b.AddJob(balancer.Job{
 		ExecutionDir:      em.executionDir,
-		BuilderType:       "single_file",
-		ExecutionType:     "single_file",
 		EmulatorName:      string(lang.Name),
 		EmulatorExtension: lang.Extension,
 		EmulatorText:      content,
