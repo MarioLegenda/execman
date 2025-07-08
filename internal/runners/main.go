@@ -23,7 +23,7 @@ type Params struct {
 
 func Run(params Params) Result {
 	if params.EmulatorName == string(nodeLts.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.NodeSingleFileBuild(builders.InitNodeParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -47,7 +47,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(perlLts.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.PerlSingleFileBuild(builders.InitPerlParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -71,7 +71,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(luaLts.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.LuaSingleFileBuild(builders.InitLuaParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -95,7 +95,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(nodeEsm.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.NodeSingleFileBuild(builders.InitNodeParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -119,7 +119,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(goLang.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.GoSingleFileBuild(builders.InitGoParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -143,7 +143,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(ruby.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.RubySingleFileBuild(builders.InitRubyParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -167,7 +167,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(php.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.PhpSingleFileBuild(builders.InitPhpParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -191,7 +191,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(python2.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.PythonSingleFileBuild(builders.InitPythonParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -215,7 +215,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(python3.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.PythonSingleFileBuild(builders.InitPythonParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -239,7 +239,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(csharpMono.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.CsharpSingleFileBuild(builders.InitCsharpParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -263,7 +263,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(haskell.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.HaskellSingleFileBuild(builders.InitHaskellParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -287,7 +287,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(cLang.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.CSingleFileBuild(builders.InitCParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -311,7 +311,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(cPlus.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.CPlusSingleFileBuild(builders.InitCPlusParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -359,7 +359,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(julia.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.JuliaSingleFileBuild(builders.InitJuliaParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -383,7 +383,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(swift.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.SwiftSingleFileBuild(builders.InitSwiftParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -407,7 +407,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(kotlin.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.KotlinSingleFileBuild(builders.InitKotlinParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -431,7 +431,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(java.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.JavaSingleFileBuild(builders.InitJavaParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
@@ -455,7 +455,7 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(zigLts.name) && params.BuilderType == "single_file" && params.ExecutionType == "single_file" {
-		build, err := builders.ZigSingleFileBuild(builders.InitZigParams(
+		build, err := builders.Build(builders.InitBuildParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
 			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
