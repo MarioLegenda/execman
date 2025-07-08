@@ -10,7 +10,7 @@ import (
 
 func regularExecution() {
 	instance, err := execman.New(execman.Options{
-		Zig: execman.Zig{
+		Ruby: execman.Ruby{
 			Workers:    200,
 			Containers: 1,
 			Timeout:    5,
@@ -23,13 +23,7 @@ func regularExecution() {
 	}
 
 	start := time.Now()
-	res := instance.Run(execman.ZigLang, `
-const std = @import("std");
-
-pub fn main() !void {
-    std.debug.print("Hello, World!\n", .{});
-}
-`)
+	res := instance.Run(execman.RubyLang, `puts "Hello world"`)
 
 	since := time.Since(start)
 	fmt.Println(res)

@@ -44,11 +44,10 @@ func stopDockerContainer(containerName string, pid int) {
 	if stopErr == nil {
 		var rmCmd *exec.Cmd
 
-		rmCmd = exec.Command("docker", []string{"remove", containerName}...)
+		rmCmd = exec.Command("docker", []string{"container", "remove", containerName}...)
 		rmErr := rmCmd.Run()
 
 		if rmErr != nil {
-
 			killErr := syscall.Kill(pid, 9)
 
 			if killErr != nil {
