@@ -3,6 +3,7 @@ package runners
 import (
 	"fmt"
 	"github.com/MarioLegenda/execman/internal/builders"
+	"os/exec"
 )
 
 type Params struct {
@@ -34,12 +35,15 @@ func Run(params Params) Result {
 			}
 		}
 
-		return nodeRunner(NodeExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "node", process}...)
 		})
 	}
 
@@ -58,12 +62,15 @@ func Run(params Params) Result {
 			}
 		}
 
-		return perlRunner(PerlExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "perl", "-I", containerDirectory, process}...)
 		})
 	}
 
@@ -82,12 +89,15 @@ func Run(params Params) Result {
 			}
 		}
 
-		return luaRunner(LuaExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "lua", process}...)
 		})
 	}
 
@@ -106,12 +116,15 @@ func Run(params Params) Result {
 			}
 		}
 
-		return nodeRunner(NodeExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "node", process}...)
 		})
 	}
 
@@ -130,12 +143,14 @@ func Run(params Params) Result {
 			}
 		}
 
-		return goRunner(GoExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			return exec.Command("docker", []string{"exec", containerName, "/bin/bash", "-c", fmt.Sprintf("cd %s && go mod init app/%s >/dev/null 2>&1 && go build && ./%s", containerDirectory, containerDirectory, containerDirectory)}...)
 		})
 	}
 
@@ -154,12 +169,15 @@ func Run(params Params) Result {
 			}
 		}
 
-		return rubyRunner(RubyExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "ruby", process}...)
 		})
 	}
 
@@ -178,12 +196,15 @@ func Run(params Params) Result {
 			}
 		}
 
-		return phpRunner(PhpExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "php", process}...)
 		})
 	}
 
@@ -202,12 +223,15 @@ func Run(params Params) Result {
 			}
 		}
 
-		return pythonRunner(PythonExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("/app/%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "python", process}...)
 		})
 	}
 
@@ -226,12 +250,15 @@ func Run(params Params) Result {
 			}
 		}
 
-		return python3Runner(PythonExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("/app/%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "python3", process}...)
 		})
 	}
 
@@ -250,12 +277,14 @@ func Run(params Params) Result {
 			}
 		}
 
-		return csharpRunner(CsharpExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			return exec.Command("docker", []string{"exec", containerName, "/bin/bash", "-c", fmt.Sprintf("cd %s && mcs -out:%s.exe -pkg:dotnet -recurse:'*.cs' && mono %s.exe", containerDirectory, containerDirectory, containerDirectory)}...)
 		})
 	}
 
@@ -274,12 +303,14 @@ func Run(params Params) Result {
 			}
 		}
 
-		return haskellRunner(HaskellExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			return exec.Command("docker", []string{"exec", containerName, "/bin/bash", "-c", fmt.Sprintf("cd %s && ghc %s > output.txt && ./%s > output.txt", containerDirectory, executionFile, executionFile[:len(executionFile)-3])}...)
 		})
 	}
 
@@ -298,12 +329,22 @@ func Run(params Params) Result {
 			}
 		}
 
-		return cRunner(CExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf(
+				"cd %s && gcc -o %s %s > output.txt && ./%s > output.txt",
+				containerDirectory,
+				containerDirectory,
+				executionFile,
+				containerDirectory,
+			)
+
+			return exec.Command("docker", []string{"exec", params.ContainerName, "/bin/sh", "-c", process}...)
 		})
 	}
 
@@ -322,12 +363,21 @@ func Run(params Params) Result {
 			}
 		}
 
-		return cplusRunner(CPlusExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf(
+				"cd %s && g++ -o %s %s > output.txt && ./%s",
+				containerDirectory,
+				containerDirectory,
+				executionFile,
+				containerDirectory,
+			)
+			return exec.Command("docker", []string{"exec", params.ContainerName, "/bin/sh", "-c", process}...)
 		})
 	}
 
@@ -346,12 +396,14 @@ func Run(params Params) Result {
 			}
 		}
 
-		return rustRunner(RustExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			return exec.Command("docker", []string{"exec", containerName, "/bin/bash", "-c", fmt.Sprintf("cd %s && cargo run --quiet | tee output.txt", containerDirectory)}...)
 		})
 	}
 
@@ -370,12 +422,16 @@ func Run(params Params) Result {
 			}
 		}
 
-		return juliaRunner(JuliaExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("%s/%s", containerDirectory, executionFile)
+
+			return exec.Command("docker", []string{"exec", containerName, "julia", process}...)
 		})
 	}
 
@@ -418,12 +474,14 @@ func Run(params Params) Result {
 			}
 		}
 
-		return kotlinRunner(KotlinExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			return exec.Command("docker", []string{"exec", params.ContainerName, "/bin/sh", "-c", fmt.Sprintf("cd %s && kotlinc %s -include-runtime -d %s.jar && java -jar %s.jar", containerDirectory, executionFile, containerDirectory, containerDirectory)}...)
 		})
 	}
 
@@ -442,12 +500,14 @@ func Run(params Params) Result {
 			}
 		}
 
-		return javaRunner(JavaExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			return exec.Command("docker", []string{"exec", containerName, "/bin/sh", "-c", fmt.Sprintf("cd /app/%s && javac %s && java %s", containerDirectory, executionFile, executionFile)}...)
 		})
 	}
 
@@ -466,12 +526,14 @@ func Run(params Params) Result {
 			}
 		}
 
-		return zigRunner(ZigExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			return exec.Command("docker", []string{"exec", containerName, "/bin/sh", "-c", fmt.Sprintf("cd %s && zig run %s", containerDirectory, executionFile)}...)
 		})
 	}
 
@@ -490,12 +552,19 @@ func Run(params Params) Result {
 			}
 		}
 
-		return bashRunner(BashExecParams{
+		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
 			ExecutionFile:      build.FileName,
 			ContainerName:      params.ContainerName,
 			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf(
+				"cd %s && bash %s",
+				containerDirectory,
+				executionFile,
+			)
+			return exec.Command("docker", []string{"exec", containerName, "/bin/sh", "-c", process}...)
 		})
 	}
 

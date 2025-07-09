@@ -140,7 +140,6 @@ int main() {
 }
 
 func TestCPlusPlusLanguage(t *testing.T) {
-	t.Skip("temporary")
 	em, err := New(Options{
 		CPlus: CPlus{
 			Workers:    10,

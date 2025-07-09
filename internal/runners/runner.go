@@ -3,13 +3,12 @@ package runners
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"os/exec"
 	"time"
 )
 
-type JuliaExecParams struct {
+type RunnerParams struct {
 	ContainerName      string
 	ExecutionDirectory string
 	ContainerDirectory string
@@ -17,7 +16,9 @@ type JuliaExecParams struct {
 	Timeout            int
 }
 
-func juliaRunner(params JuliaExecParams) Result {
+type GetCommandFn = func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd
+
+func runner(params RunnerParams, commandFn GetCommandFn) Result {
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Duration(params.Timeout)*time.Second))
 	defer cancel()
 
@@ -27,11 +28,8 @@ func juliaRunner(params JuliaExecParams) Result {
 	tc := make(chan string)
 	pidC := make(chan int, 1)
 
-	process := fmt.Sprintf("%s/%s", params.ContainerDirectory, params.ExecutionFile)
-
 	go func() {
-		cmd := exec.Command("docker", []string{"exec", params.ContainerName, "julia", process}...)
-
+		cmd := commandFn(params.ContainerName, params.ExecutionDirectory, params.ExecutionFile, params.ContainerDirectory)
 		errPipe, err := cmd.StderrPipe()
 
 		if err != nil {
@@ -53,14 +51,14 @@ func juliaRunner(params JuliaExecParams) Result {
 		}
 
 		startErr := cmd.Start()
+		pidC <- cmd.Process.Pid
+
+		a, _ := io.ReadAll(errPipe)
+		b, _ := io.ReadAll(outPipe)
+		errb = string(a)
+		outb = string(b)
+
 		if startErr == nil {
-			pidC <- cmd.Process.Pid
-
-			a, _ := io.ReadAll(errPipe)
-			b, _ := io.ReadAll(outPipe)
-			errb = string(a)
-			outb = string(b)
-
 			waitErr := cmd.Wait()
 
 			if waitErr != nil {
@@ -100,7 +98,7 @@ func juliaRunner(params JuliaExecParams) Result {
 				runResult.Success = true
 			}
 
-			destroyContainerProcess(extractUniqueIdentifier(process, true), true)
+			destroyContainerProcess(extractUniqueIdentifier(params.ContainerDirectory, false), true)
 			destroy(params.ExecutionDirectory)
 			return runResult
 		}
@@ -115,7 +113,7 @@ func juliaRunner(params JuliaExecParams) Result {
 
 		break
 	case <-ctx.Done():
-		destroyContainerProcess(extractUniqueIdentifier(process, true), true)
+		destroyContainerProcess(extractUniqueIdentifier(params.ContainerDirectory, false), true)
 		closeExecSession(<-pidC)
 		destroy(params.ExecutionDirectory)
 		close(pidC)
