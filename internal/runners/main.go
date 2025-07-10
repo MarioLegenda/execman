@@ -20,21 +20,21 @@ type Params struct {
 }
 
 func Run(params Params) Result {
-	if params.EmulatorName == string(nodeLts.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
+	build, err := builders.Build(builders.InitBuildParams(
+		params.EmulatorExtension,
+		params.EmulatorText,
+		fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
+	))
 
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
+	if err != nil {
+		return Result{
+			Result:  "",
+			Success: false,
+			Error:   err,
 		}
+	}
 
+	if params.EmulatorName == string(nodeLts.name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -48,20 +48,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(perlLts.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -75,20 +61,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(luaLts.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -102,20 +74,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(nodeEsm.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -129,20 +87,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(goLang.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -155,20 +99,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(ruby.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -182,20 +112,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(php.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -209,20 +125,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(python2.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -236,20 +138,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(python3.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -263,20 +151,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(csharpMono.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -289,20 +163,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(haskell.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -315,20 +175,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(cLang.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -349,20 +195,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(cPlus.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -382,6 +214,8 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(rust.name) {
+		// since rust build step is different from the rest of them, it is used
+		// as a specific build step and is overriden.
 		build, err := builders.RustSingleFileBuild(builders.InitRustParams(
 			params.EmulatorExtension,
 			params.EmulatorText,
@@ -408,20 +242,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(julia.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -436,20 +256,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(swift.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return swiftRunner(SwiftExecParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -460,20 +266,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(kotlin.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -486,20 +278,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(java.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -512,20 +290,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(zigLts.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -538,20 +302,6 @@ func Run(params Params) Result {
 	}
 
 	if params.EmulatorName == string(bash.name) {
-		build, err := builders.Build(builders.InitBuildParams(
-			params.EmulatorExtension,
-			params.EmulatorText,
-			fmt.Sprintf("%s/%s", params.ExecutionDir, params.ContainerName),
-		))
-
-		if err != nil {
-			return Result{
-				Result:  "",
-				Success: false,
-				Error:   err,
-			}
-		}
-
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
