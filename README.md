@@ -333,6 +333,7 @@ const JavaLang = "java"
 const KotlinLang = "kotlin"
 const ZigLang = "zig"
 const Bash = "bash"
+const DartLang = "dart"
 ````
 
 # Tests
