@@ -3,6 +3,7 @@ package runners
 import (
 	"fmt"
 	"github.com/MarioLegenda/execman/internal/builders"
+	"github.com/MarioLegenda/execman/internal/types"
 	"os/exec"
 )
 
@@ -34,7 +35,7 @@ func Run(params Params) Result {
 		}
 	}
 
-	if params.EmulatorName == string(nodeLts.name) {
+	if params.EmulatorName == string(types.NodeLts.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -47,7 +48,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(perlLts.name) {
+	if params.EmulatorName == string(types.PerlLts.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -60,7 +61,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(luaLts.name) {
+	if params.EmulatorName == string(types.Lua.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -73,7 +74,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(nodeEsm.name) {
+	if params.EmulatorName == string(types.NodeEsm.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -86,7 +87,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(goLang.name) {
+	if params.EmulatorName == string(types.GoLang.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -98,7 +99,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(ruby.name) {
+	if params.EmulatorName == string(types.Ruby.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -111,7 +112,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(php.name) {
+	if params.EmulatorName == string(types.Php74.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -124,7 +125,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(python2.name) {
+	if params.EmulatorName == string(types.Python2.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -137,7 +138,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(python3.name) {
+	if params.EmulatorName == string(types.Python3.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -150,7 +151,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(csharpMono.name) {
+	if params.EmulatorName == string(types.CSharpMono.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -162,7 +163,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(haskell.name) {
+	if params.EmulatorName == string(types.Haskell.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -174,7 +175,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(cLang.name) {
+	if params.EmulatorName == string(types.CLang.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -194,7 +195,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(cPlus.name) {
+	if params.EmulatorName == string(types.CPlus.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -213,7 +214,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(rust.name) {
+	if params.EmulatorName == string(types.Rust.Name) {
 		// since rust build step is different from the rest of them, it is used
 		// as a specific build step and is overriden.
 		build, err := builders.RustSingleFileBuild(builders.InitRustParams(
@@ -241,7 +242,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(julia.name) {
+	if params.EmulatorName == string(types.Julia.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -255,7 +256,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(swift.name) {
+	if params.EmulatorName == string(types.SwiftLts.Name) {
 		return swiftRunner(SwiftExecParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -265,7 +266,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(kotlin.name) {
+	if params.EmulatorName == string(types.KotlinLts.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -277,7 +278,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(java.name) {
+	if params.EmulatorName == string(types.JavaLts.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -289,7 +290,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(zigLts.name) {
+	if params.EmulatorName == string(types.ZigLts.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -301,7 +302,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(bash.name) {
+	if params.EmulatorName == string(types.Bash.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
