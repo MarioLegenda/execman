@@ -10,7 +10,7 @@ import (
 
 func regularExecution() {
 	instance, err := execman.New(execman.Options{
-		Bash: execman.Bash{
+		Dart: execman.Dart{
 			Workers:    200,
 			Containers: 1,
 			Timeout:    5,
@@ -23,9 +23,10 @@ func regularExecution() {
 	}
 
 	start := time.Now()
-	res := instance.Run(execman.BashLang, `
-#!/bin/bash
-echo "Hello World"
+	res := instance.Run(execman.DartLang, `
+void main() {
+  print("Hello, World!");
+}
 `)
 
 	since := time.Since(start)

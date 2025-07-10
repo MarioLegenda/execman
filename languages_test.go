@@ -139,6 +139,29 @@ int main() {
 	em.Close()
 }
 
+func TestDartLanguage(t *testing.T) {
+	em, err := New(Options{
+		Dart: Dart{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(DartLang, `
+void main() {
+  print("Hello world");
+}
+`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "Hello world\n")
+
+	em.Close()
+}
+
 func TestCPlusPlusLanguage(t *testing.T) {
 	em, err := New(Options{
 		CPlus: CPlus{

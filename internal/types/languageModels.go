@@ -114,6 +114,12 @@ var Julia = Language{
 	Extension: "jl",
 }
 
+var Dart = Language{
+	Name:      "dart",
+	Tag:       "dart:dart",
+	Extension: "dart",
+}
+
 var KotlinLts = Language{
 	Name:      "kotlin",
 	Tag:       "kotlin:kotlin",

@@ -48,6 +48,19 @@ func Run(params Params) Result {
 		})
 	}
 
+	if params.EmulatorName == string(types.Dart.Name) {
+		return runner(RunnerParams{
+			ExecutionDirectory: build.ExecutionDirectory,
+			ContainerDirectory: build.ContainerDirectory,
+			ExecutionFile:      build.FileName,
+			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "dart", process}...)
+		})
+	}
+
 	if params.EmulatorName == string(types.PerlLts.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,

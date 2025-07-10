@@ -19,5 +19,6 @@ const JavaLang = "java"
 const KotlinLang = "kotlin"
 const ZigLang = "zig"
 const BashLang = "bash"
+const DartLang = "dart"
 
 //const SwiftLang = "swift"

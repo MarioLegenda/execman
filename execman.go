@@ -49,6 +49,12 @@ type Bash struct {
 	Timeout    int
 }
 
+type Dart struct {
+	Workers    int
+	Containers int
+	Timeout    int
+}
+
 type Julia struct {
 	Workers    int
 	Containers int
@@ -173,6 +179,7 @@ type Options struct {
 	Rust
 	CPlus
 	Swift
+	Dart
 	Haskell
 	Zig
 	Bash
@@ -230,6 +237,8 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.ZigLts, nil
 	} else if name == "bash" {
 		return types.Bash, nil
+	} else if name == "dart" {
+		return types.Dart, nil
 	}
 
 	return types.Language{}, errors.New(fmt.Sprintf("Cannot find language %s", name))
@@ -246,6 +255,7 @@ func New(options Options) (Emulator, error) {
 	}
 
 	containerBlueprints := []containerBlueprint{
+		createBlueprint(DartLang, "dart:dart", options.Dart.Workers, options.Dart.Containers, options.Dart.Timeout),
 		createBlueprint(NodeLatestLang, "node:node_latest", options.NodeLts.Workers, options.NodeLts.Containers, options.NodeLts.Timeout),
 		createBlueprint(JavaLang, "java:java_latest", options.Java.Workers, options.Java.Containers, options.Java.Timeout),
 		createBlueprint(JuliaLang, "julia:julia", options.Julia.Workers, options.Julia.Containers, options.Julia.Timeout),

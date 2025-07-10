@@ -2,6 +2,7 @@
 
 dir=$PWD
 
+cd "$dir/dart" && /usr/bin/docker image build -t dart:dart .
 cd "$dir/go_latest" && /usr/bin/docker image build -t go:go_latest .
 cd "$dir/bash" && /usr/bin/docker image build -t bash:bash .
 # cd "$dir/swift" && /usr/bin/docker image build -t swift:swift_latest .
