@@ -292,7 +292,6 @@ func New(options Options) (Emulator, error) {
 	}
 
 	wg := sync.WaitGroup{}
-	containerErrors := make([]error, 0)
 	for _, c := range containerBlueprints {
 		// default case, user did not specify this language at all
 		if c.WorkerNum == 0 && c.ContainerNum == 0 {
@@ -323,20 +322,6 @@ func New(options Options) (Emulator, error) {
 	}
 
 	wg.Wait()
-
-	if len(containerErrors) != 0 {
-		fmt.Println("Some containers could not run. Below is are the errors of those containers:")
-		for _, e := range containerErrors {
-			fmt.Println(e.Error())
-		}
-
-		// if there are errors with creating some containers, others might
-		// already be created. We call Close() here to stop those containers
-		// and stop all balancers
-		e.Close()
-
-		return e, ContainerCannotBoot
-	}
 
 	fmt.Println("execman is ready to be used!")
 
