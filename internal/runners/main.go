@@ -269,16 +269,6 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.SwiftLts.Name) {
-		return swiftRunner(SwiftExecParams{
-			ExecutionDirectory: build.ExecutionDirectory,
-			ContainerDirectory: build.ContainerDirectory,
-			ExecutionFile:      build.FileName,
-			ContainerName:      params.ContainerName,
-			Timeout:            params.Timeout,
-		})
-	}
-
 	if params.EmulatorName == string(types.KotlinLts.Name) {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,

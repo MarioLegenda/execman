@@ -229,8 +229,6 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.Php74, nil
 	} else if name == "java" {
 		return types.JavaLts, nil
-	} else if name == "swift" {
-		return types.SwiftLts, nil
 	} else if name == "kotlin" {
 		return types.KotlinLts, nil
 	} else if name == "zig" {
@@ -255,28 +253,28 @@ func New(options Options) (Emulator, error) {
 	}
 
 	containerBlueprints := []containerBlueprint{
-		createBlueprint(DartLang, string(types.Dart.Tag), options.Dart.Workers, options.Dart.Containers, options.Dart.Timeout),
-		createBlueprint(NodeLatestLang, string(types.NodeLts.Tag), options.NodeLts.Workers, options.NodeLts.Containers, options.NodeLts.Timeout),
-		createBlueprint(JavaLang, string(types.JavaLts.Tag), options.Java.Workers, options.Java.Containers, options.Java.Timeout),
-		createBlueprint(JuliaLang, string(types.Julia.Tag), options.Julia.Workers, options.Julia.Containers, options.Julia.Timeout),
-		createBlueprint(KotlinLang, string(types.KotlinLts.Tag), options.Kotlin.Workers, options.Kotlin.Containers, options.Kotlin.Timeout),
-		createBlueprint(BashLang, string(types.Bash.Tag), options.Bash.Workers, options.Bash.Containers, options.Bash.Timeout),
-		createBlueprint(ZigLang, "zig:zig", options.Zig.Workers, options.Zig.Containers, options.Zig.Timeout),
+		createBlueprint(DartLang, types.Dart.Tag, options.Dart.Workers, options.Dart.Containers, options.Dart.Timeout),
+		createBlueprint(NodeLatestLang, types.NodeLts.Tag, options.NodeLts.Workers, options.NodeLts.Containers, options.NodeLts.Timeout),
+		createBlueprint(JavaLang, types.JavaLts.Tag, options.Java.Workers, options.Java.Containers, options.Java.Timeout),
+		createBlueprint(JuliaLang, types.Julia.Tag, options.Julia.Workers, options.Julia.Containers, options.Julia.Timeout),
+		createBlueprint(KotlinLang, types.KotlinLts.Tag, options.Kotlin.Workers, options.Kotlin.Containers, options.Kotlin.Timeout),
+		createBlueprint(BashLang, types.Bash.Tag, options.Bash.Workers, options.Bash.Containers, options.Bash.Timeout),
+		createBlueprint(ZigLang, types.ZigLts.Tag, options.Zig.Workers, options.Zig.Containers, options.Zig.Timeout),
 		// something is wrong with the way build files are built since they can't be deleted by the clenaup process
 		// createBlueprint(SwiftLang, "swift:latest", options.Swift.Workers, options.Swift.Containers),
-		createBlueprint(NodeEsmLtsLang, string(types.NodeEsm.Tag), options.NodeEsm.Workers, options.NodeEsm.Containers, options.NodeEsm.Timeout),
-		createBlueprint(RubyLang, string(types.Ruby.Tag), options.Ruby.Workers, options.Ruby.Containers, options.Ruby.Timeout),
-		createBlueprint(RustLang, string(types.Rust.Tag), options.Rust.Workers, options.Rust.Containers, options.Rust.Timeout),
-		createBlueprint(CPlusPlusLang, string(types.CPlus.Tag), options.CPlus.Workers, options.CPlus.Containers, options.CPlus.Timeout),
-		createBlueprint(HaskellLang, string(types.Haskell.Tag), options.Haskell.Workers, options.Haskell.Containers, options.Haskell.Timeout),
-		createBlueprint(C, string(types.CLang.Tag), options.CLang.Workers, options.CLang.Containers, options.CLang.Timeout),
-		createBlueprint(PerlLtsLang, string(types.PerlLts.Tag), options.Perl.Workers, options.Perl.Containers, options.Perl.Timeout),
-		createBlueprint(CSharpLang, string(types.CSharpMono.Tag), options.CSharp.Workers, options.CSharp.Containers, options.CSharp.Timeout),
-		createBlueprint(Python3Lang, string(types.Python3.Tag), options.Python3.Workers, options.Python3.Containers, options.Python3.Timeout),
-		createBlueprint(LuaLang, string(types.Lua.Tag), options.Lua.Workers, options.Lua.Containers, options.Lua.Timeout),
-		createBlueprint(Python2Lang, string(types.Python2.Tag), options.Python2.Workers, options.Python2.Containers, options.Python2.Timeout),
-		createBlueprint(PHP74Lang, string(types.Php74.Tag), options.Php74.Workers, options.Php74.Containers, options.Php74.Timeout),
-		createBlueprint(Golang, string(types.GoLang.Tag), options.GoLang.Workers, options.GoLang.Containers, options.GoLang.Timeout),
+		createBlueprint(NodeEsmLtsLang, types.NodeEsm.Tag, options.NodeEsm.Workers, options.NodeEsm.Containers, options.NodeEsm.Timeout),
+		createBlueprint(RubyLang, types.Ruby.Tag, options.Ruby.Workers, options.Ruby.Containers, options.Ruby.Timeout),
+		createBlueprint(RustLang, types.Rust.Tag, options.Rust.Workers, options.Rust.Containers, options.Rust.Timeout),
+		createBlueprint(CPlusPlusLang, types.CPlus.Tag, options.CPlus.Workers, options.CPlus.Containers, options.CPlus.Timeout),
+		createBlueprint(HaskellLang, types.Haskell.Tag, options.Haskell.Workers, options.Haskell.Containers, options.Haskell.Timeout),
+		createBlueprint(C, types.CLang.Tag, options.CLang.Workers, options.CLang.Containers, options.CLang.Timeout),
+		createBlueprint(PerlLtsLang, types.PerlLts.Tag, options.Perl.Workers, options.Perl.Containers, options.Perl.Timeout),
+		createBlueprint(CSharpLang, types.CSharpMono.Tag, options.CSharp.Workers, options.CSharp.Containers, options.CSharp.Timeout),
+		createBlueprint(Python3Lang, types.Python3.Tag, options.Python3.Workers, options.Python3.Containers, options.Python3.Timeout),
+		createBlueprint(LuaLang, types.Lua.Tag, options.Lua.Workers, options.Lua.Containers, options.Lua.Timeout),
+		createBlueprint(Python2Lang, types.Python2.Tag, options.Python2.Workers, options.Python2.Containers, options.Python2.Timeout),
+		createBlueprint(PHP74Lang, types.Php74.Tag, options.Php74.Workers, options.Php74.Containers, options.Php74.Timeout),
+		createBlueprint(Golang, types.GoLang.Tag, options.GoLang.Workers, options.GoLang.Containers, options.GoLang.Timeout),
 	}
 
 	// perform initial validation

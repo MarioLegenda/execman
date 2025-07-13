@@ -1,15 +1,9 @@
 package types
 
-type Name string
-type Text string
-type Tag string
-type InDevelopment bool
-type InMaintenance bool
-
 type Language struct {
-	Name      Name   `json:"name"`
-	Tag       Tag    `json:"tag"`
-	Extension string `json:"extension"`
+	Name      string
+	Tag       string
+	Extension string
 }
 
 var NodeLts = Language{
@@ -70,12 +64,6 @@ var JavaLts = Language{
 	Name:      "java",
 	Tag:       "java:java_latest",
 	Extension: "java",
-}
-
-var SwiftLts = Language{
-	Name:      "swift",
-	Tag:       "swift:latest",
-	Extension: "swift",
 }
 
 var Rust = Language{
