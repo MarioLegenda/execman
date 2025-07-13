@@ -35,7 +35,7 @@ func Run(params Params) Result {
 		}
 	}
 
-	if params.EmulatorName == string(types.NodeLts.Name) {
+	if params.EmulatorName == types.NodeLts.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -48,7 +48,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Dart.Name) {
+	if params.EmulatorName == types.Dart.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -61,7 +61,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.PerlLts.Name) {
+	if params.EmulatorName == types.PerlLts.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -74,7 +74,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Lua.Name) {
+	if params.EmulatorName == types.Lua.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -87,7 +87,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.NodeEsm.Name) {
+	if params.EmulatorName == types.NodeEsm.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -100,7 +100,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.GoLang.Name) {
+	if params.EmulatorName == types.GoLang.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -112,7 +112,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Ruby.Name) {
+	if params.EmulatorName == types.Ruby.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -125,7 +125,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Php74.Name) {
+	if params.EmulatorName == types.Php74.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -138,7 +138,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Python2.Name) {
+	if params.EmulatorName == types.Python2.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -151,7 +151,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Python3.Name) {
+	if params.EmulatorName == types.Python3.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -164,7 +164,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.CSharpMono.Name) {
+	if params.EmulatorName == types.CSharpMono.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -176,7 +176,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Haskell.Name) {
+	if params.EmulatorName == types.Haskell.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -188,7 +188,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.CLang.Name) {
+	if params.EmulatorName == types.CLang.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -208,7 +208,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.CPlus.Name) {
+	if params.EmulatorName == types.CPlus.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -227,7 +227,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Rust.Name) {
+	if params.EmulatorName == types.Rust.Name {
 		// since rust build step is different from the rest of them, it is used
 		// as a specific build step and is overriden.
 		build, err := builders.RustSingleFileBuild(builders.InitRustParams(
@@ -255,7 +255,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Julia.Name) {
+	if params.EmulatorName == types.Julia.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -269,7 +269,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.KotlinLts.Name) {
+	if params.EmulatorName == types.KotlinLts.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -281,7 +281,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.JavaLts.Name) {
+	if params.EmulatorName == types.JavaLts.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -293,7 +293,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.ZigLts.Name) {
+	if params.EmulatorName == types.ZigLts.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
@@ -305,7 +305,7 @@ func Run(params Params) Result {
 		})
 	}
 
-	if params.EmulatorName == string(types.Bash.Name) {
+	if params.EmulatorName == types.Bash.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
 			ContainerDirectory: build.ContainerDirectory,
