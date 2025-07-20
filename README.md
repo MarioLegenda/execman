@@ -334,6 +334,7 @@ const KotlinLang = "kotlin"
 const ZigLang = "zig"
 const Bash = "bash"
 const DartLang = "dart"
+const Php8Lang = "php8"
 ````
 
 # Tests

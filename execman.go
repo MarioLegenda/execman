@@ -157,6 +157,12 @@ type Zig struct {
 	Timeout    int
 }
 
+type Php8 struct {
+	Workers    int
+	Containers int
+	Timeout    int
+}
+
 type GoLang struct {
 	Workers    int
 	Containers int
@@ -190,6 +196,7 @@ type Options struct {
 	Python3
 	Lua
 	Python2
+	Php8
 	Php74
 	GoLang
 
@@ -237,6 +244,8 @@ func selectProgrammingLanguage(name string) (types.Language, error) {
 		return types.Bash, nil
 	} else if name == "dart" {
 		return types.Dart, nil
+	} else if name == "php8" {
+		return types.Php8, nil
 	}
 
 	return types.Language{}, errors.New(fmt.Sprintf("Cannot find language %s", name))
@@ -253,6 +262,7 @@ func New(options Options) (Emulator, error) {
 	}
 
 	containerBlueprints := []containerBlueprint{
+		createBlueprint(Php8Lang, types.Php8.Tag, options.Php8.Workers, options.Php8.Containers, options.Php8.Timeout),
 		createBlueprint(DartLang, types.Dart.Tag, options.Dart.Workers, options.Dart.Containers, options.Dart.Timeout),
 		createBlueprint(NodeLatestLang, types.NodeLts.Tag, options.NodeLts.Workers, options.NodeLts.Containers, options.NodeLts.Timeout),
 		createBlueprint(JavaLang, types.JavaLts.Tag, options.Java.Workers, options.Java.Containers, options.Java.Timeout),
@@ -336,7 +346,7 @@ func (em Emulator) Run(language, content string) Result {
 		}
 	}
 
-	b := em.balancers[string(lang.Name)]
+	b := em.balancers[lang.Name]
 
 	resultCh := make(chan balancer.Result)
 	b.AddJob(balancer.Job{

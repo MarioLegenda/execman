@@ -10,8 +10,8 @@ import (
 
 func regularExecution() {
 	instance, err := execman.New(execman.Options{
-		Dart: execman.Dart{
-			Workers:    200,
+		Php8: execman.Php8{
+			Workers:    10,
 			Containers: 1,
 			Timeout:    5,
 		},
@@ -23,10 +23,12 @@ func regularExecution() {
 	}
 
 	start := time.Now()
-	res := instance.Run(execman.DartLang, `
-void main() {
-  print("Hello, World!");
-}
+	res := instance.Run(execman.Php8Lang, `
+<?php
+
+echo "Hello World!";
+
+?>
 `)
 
 	since := time.Since(start)

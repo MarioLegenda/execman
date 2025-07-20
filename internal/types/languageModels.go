@@ -125,3 +125,9 @@ var Bash = Language{
 	Tag:       "bash:bash",
 	Extension: "sh",
 }
+
+var Php8 = Language{
+	Name:      "php8",
+	Tag:       "php8:php8",
+	Extension: "php",
+}

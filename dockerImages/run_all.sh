@@ -2,6 +2,7 @@
 
 dir=$PWD
 
+cd "$dir/php8" && /usr/bin/docker image build -t php8:php8 .
 cd "$dir/dart" && /usr/bin/docker image build -t dart:dart .
 cd "$dir/go_latest" && /usr/bin/docker image build -t go:go_latest .
 cd "$dir/bash" && /usr/bin/docker image build -t bash:bash .

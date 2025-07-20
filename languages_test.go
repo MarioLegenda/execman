@@ -404,6 +404,29 @@ echo "Hello world";
 	em.Close()
 }
 
+func TestPHP8Language(t *testing.T) {
+	em, err := New(Options{
+		Php8: Php8{
+			Workers:    10,
+			Containers: 1,
+		},
+		ExecutionDirectory: "/home/mario/go/execman/execution_directory",
+	})
+	assert.Nil(t, err)
+
+	res := em.Run(Php8Lang, `
+<?php
+echo "Hello world";
+?>
+`)
+
+	assert.Nil(t, res.Error)
+	assert.True(t, res.Success)
+	assert.Equal(t, res.Result, "\nHello world")
+
+	em.Close()
+}
+
 func TestRustLanguage(t *testing.T) {
 	em, err := New(Options{
 		Rust: Rust{

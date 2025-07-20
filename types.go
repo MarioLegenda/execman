@@ -20,5 +20,6 @@ const KotlinLang = "kotlin"
 const ZigLang = "zig"
 const BashLang = "bash"
 const DartLang = "dart"
+const Php8Lang = "php8"
 
 //const SwiftLang = "swift"

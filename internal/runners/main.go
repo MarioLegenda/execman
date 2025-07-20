@@ -138,6 +138,19 @@ func Run(params Params) Result {
 		})
 	}
 
+	if params.EmulatorName == types.Php8.Name {
+		return runner(RunnerParams{
+			ExecutionDirectory: build.ExecutionDirectory,
+			ContainerDirectory: build.ContainerDirectory,
+			ExecutionFile:      build.FileName,
+			ContainerName:      params.ContainerName,
+			Timeout:            params.Timeout,
+		}, func(containerName, executionDirectory, executionFile, containerDirectory string) *exec.Cmd {
+			process := fmt.Sprintf("%s/%s", containerDirectory, executionFile)
+			return exec.Command("docker", []string{"exec", containerName, "php", process}...)
+		})
+	}
+
 	if params.EmulatorName == types.Python2.Name {
 		return runner(RunnerParams{
 			ExecutionDirectory: build.ExecutionDirectory,
